@@ -1,0 +1,182 @@
+@font-face {
+    font-family: "Titillium-normal";
+    font-style: normal;
+    font-weight: 400;
+    src: url("TitilliumWeb-Regular.ttf");
+	}
+	@font-face {
+    font-family: "Titillium-regular";
+    font-style: regular;
+    font-weight: 200;
+    src: url("TitilliumWeb-Regular.ttf");
+	}
+	
+		#title {
+			text-align:left; 
+			font-family:Titillium-normal, Arial; 
+			color: #EF4E24;
+			/*-webkit-text-stroke-width: 0.25px;
+			-webkit-text-stroke-color: #EF4E24;
+			-webkit-text-fill-color: #EF4E24;*/
+			font-size:24px; 
+			margin-bottom:6px; 
+			margin-top: 0px;
+		}
+		#chart_div {width: 100%; height: 70%; opacity: 1.0; border-style:solid;
+					 border-color:#EF4E24;
+					 border-top-width:10px;
+					 border-left-width:0px;
+					 border-right-width:0px;
+					 border-bottom-width:5px;}
+		#div_buttons 
+		{
+			width: 100%; 
+			height: 35px; 
+			text-align: center; 
+			margin-left: -10px;
+			margin-top: 18px;
+		}
+		
+		.period{	height:35px; 
+				position:relative; 
+				width:100px; margin-top: 5px;
+				background-color:transparent;
+				-webkit-border-top-left-radius:5px;
+				-moz-border-radius-topleft:5px;
+				border-top-left-radius:5px;
+				-webkit-border-top-right-radius:5px;
+				-moz-border-radius-topright:5px;
+				border-top-right-radius:5px;
+				-webkit-border-bottom-right-radius:5px;
+				-moz-border-radius-bottomright:5px;
+				border-bottom-right-radius:5px;
+				-webkit-border-bottom-left-radius:5px;
+				-moz-border-radius-bottomleft:5px;
+				border-bottom-left-radius:5px;
+				border-color: transparent;
+				font-family: Titillium-normal;
+				/*-webkit-text-stroke-width: 0.25px;
+				-webkit-text-stroke-color: black;
+				-webkit-text-fill-color: black;*/
+				font-size:20px;
+				text-align:center;
+				margin-left: 20px
+			}
+			.period:hover, .period:focus, .period:active {
+				background-color:#EC441D;
+				color: white;
+				outline: 0;
+				/*-webkit-text-stroke-width: 0.25px;
+				-webkit-text-stroke-color: white;
+				-webkit-text-fill-color: white;*/
+				height:35px; position:relative; width:100px; margin-left: 20px; margin-top: 3px;
+			}
+			/*.period:focus {
+				background-color:#EC441D;
+				color: white;
+				-webkit-text-stroke-width: 0.25px;
+				-webkit-text-stroke-color: white;
+				-webkit-text-fill-color: white;
+				outline: 0;
+				height:35px; position:relative; width:100px; margin-left: 20px; margin-top: 3px;
+			}
+			.period:active {
+				position:relative;
+				color: white;
+				top:1px;
+				-webkit-text-stroke-width: 0.25px;
+				-webkit-text-stroke-color: white;
+				-webkit-text-fill-color: white;
+				height:35px; position:relative; width:100px; margin-left: 20px; margin-top: 3px;
+			}*/
+			.period-highlight {
+				position:relative;
+				background-color:#EC441D;
+				top:1px;
+				color: white;
+				/*-webkit-text-stroke-width: 0.25px;
+				-webkit-text-stroke-color: white;
+				-webkit-text-fill-color: white;*/
+				height:35px; position:relative; width:100px; margin-left: 20px; margin-top: 3px;
+			}
+			
+	#wrapch
+	{
+		position: relative;
+		display: inline-block;	
+		width: 73.5%;	
+		margin-left: 23px;
+		margin-top: 7px;
+		
+	}
+	#wraptable
+	{
+		position: relative;
+		display: inline-block;	
+		width: 22%;	
+		margin-left:26px;
+		margin-top: 7px;
+		
+	}
+	#table_div {width: 100%; height: 70%; opacity: 1.0; border-style:solid;
+					 border-color:#EF4E24;
+					 border-top-width:10px;
+					 border-left-width:0px;
+					 border-right-width:0px;
+					 border-bottom-width:5px;
+				}
+	.table{
+	border-collapse: collapse;
+	width: 100%;
+	height: 100%;
+	font-family: Titillium-normal;
+	font-weight: bold;
+	/*-webkit-text-stroke-width: 0.25px;
+				-webkit-text-stroke-color: black;
+				-webkit-text-fill-color: black;*/
+	}
+	#legend{
+	border-style:solid;
+	border-color:#EF4E24;
+	border-top-width:0px;
+	border-left-width:0px;
+	border-right-width:0px;
+	border-bottom-width:1px;
+	color: #565656;
+	font-height: 18px;
+	height: 55px;
+	font-family: Titillium-regular;
+	font-weight: 100;
+	}
+	#photovolt{
+	color: green;
+	/*-webkit-text-stroke-width: 0.25px;
+				-webkit-text-stroke-color: green;
+				-webkit-text-fill-color: green;*/
+	border-style:solid;
+	border-color: rgba(239, 78, 36, 0.3);
+	border-top-width:0px;
+	border-left-width:0px;
+	border-right-width:0px;
+	border-bottom-width:1px;
+	}
+	#total{
+	border-style:solid;
+	border-color:#EF4E24;
+	border-top-width:1px;
+	border-left-width:0px;
+	border-right-width:0px;
+	border-bottom-width:0px;
+	width: 55px;
+	/*-webkit-text-stroke-width: 0.25px;
+				-webkit-text-stroke-color: black;
+				-webkit-text-fill-color: black;*/
+	}
+	.line{
+	border-style:solid;
+	border-color: rgba(239, 78, 36, 0.3);
+	border-top-width:0px;
+	border-left-width:0px;
+	border-right-width:0px;
+	border-bottom-width:1px;
+	}

@@ -1,0 +1,57 @@
+<!DOCTYPE html> 
+ <meta charset="utf-8" /> 
+ <title>WebSocket Test</title>
+<script src="javascript/jquery-2.1.0.min.js"></script>
+<script src="javascript/jquery.atmosphere.js"></script>
+
+ <script language="javascript" type="text/javascript"> 
+ /*http://localhost:8080/rest/sitemap/cometVISU?type=json&X-Atmosphere-tracking-id=0&X-Atmosphere-Framework=2.0.4-javascript&X-Cache-Date=0&Content-Type=application/x-javascript&X-atmo-protocol=true*/
+ var wsUri = "https://localhost:8443/rest/sitemap/cometVISU"; 
+  var socket = $.atmosphere;
+  var output;
+  function init() { output = document.getElementById("output"); subscribe("http://localhost:8080/rest/items/MemUsedPercent"); }
+  function subscribe(location) {
+	 
+                var request = { url : location,
+				    maxRequest : 256,
+					timeout: 59000,
+					attachHeadersAsQueryString : true,
+					executeCallbackBeforeReconnect : false,
+					//transport: 'long-polling',
+					transport: 'websocket',
+					fallbackTransport: 'streaming',
+                    headers:{'Accept': 'application/json'}};
+
+                request.onError = function (response) {
+					//console.log('------ ERROR -------');
+					//console.log(response);
+				}
+				request.onOpen = function(response) {
+					//console.log('-------- OPEN --------');
+					//console.log(response);
+					detectedTransport = response.transport;
+					writeToScreen("CONNECTED");
+				}   
+				                 
+                request.onMessage = function (response) {
+					var pok = jQuery.parseJSON(response.responseBody);
+					writeToScreen('<span style="color: blue;">RESPONSE: ' + pok.state+'</span>');
+					console.log(window.innerHeight);
+					console.log(screen.availHeight);
+					//console.log(response);
+				   };
+
+               socket.subscribe(request);
+            }
+function writeToScreen(message) { 
+var pre = document.createElement("p"); 
+pre.style.wordWrap = "break-word"; 
+pre.innerHTML = message; output.appendChild(pre); }
+
+function unsubscribe(){
+      socket.unsubscribe();
+}
+
+window.addEventListener("load", init, false);
+ </script>  
+ <h2>WebSocket Test</h2>  <div id="output"></div>

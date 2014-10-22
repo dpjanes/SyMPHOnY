@@ -1,0 +1,16 @@
+
+Strategies 
+	{
+		every5s : "0/5 * * * * ?"
+		every1m : "* 0/1 * * * ?"
+	}
+	
+Items 
+	{
+		PowerT1 : strategy = every5s
+		PowerT2 : strategy = every5s
+		WaterC : strategy = every5s
+		WaterH : strategy = every5s
+		SmartHumidity : strategy = every5s
+		SmartTemperature : strategy = every5s
+	}

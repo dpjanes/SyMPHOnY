@@ -1,0 +1,5 @@
+Channel: SIP/fritzbox
+MaxRetries: 3
+RetryTime: 60
+Context: alarm
+Extension: 666

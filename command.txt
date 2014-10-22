@@ -1,0 +1,2 @@
+i 1 '{"feed":"672249684",{"version":"1.0.0","datastreams":[{"id":"cold","current_value":"13.204"}]}}'
+exit

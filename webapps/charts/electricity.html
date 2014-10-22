@@ -1,0 +1,467 @@
+<html>
+  <head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+        <title>Electricity Consumption</title>
+  </head>
+  <body>
+  <div id="wrapch">
+	<span class="title">Electricity Consumption</span><span id="chleg">1 DAY AGO</span><span class="image"><img src="./chleg.png" width="15" height="15"></span>
+    <div id="chart_div"></div>
+</div>
+
+<div id="wraptable">
+	<span class="title">Cost & Earnings</span>
+	<div id="table_div">
+	<table class="table">
+	<tr id="legend"><td></td><td id="legnow"></td><td id="legago"></td></tr>
+	<tr class="line"><td class="name">Cold Water</td><td id="coldwatnow"></td><td id="coldwatago"></td></tr>
+	<tr class="line"><td class="name">Hot Water</td><td id="hotwatnow"></td><td id="hotwatago"></td></tr>
+	<tr class="line"><td class="name">Electricity T1</td><td id="elenowT1"></td><td id="eleagoT1"></td></tr>
+	<tr class="line"><td class="name">Electricity T2</td><td id="elenowT2"></td><td id="eleagoT2"></td></tr>
+	<tr id="photovolt"><td class="name">Photovoltaics</td><td id="photnow"></td><td id="photago"></td></tr>
+	<tr id="total"><td class="name">Total</td><td id="totnow"></td><td id="totago"></td></tr>
+	</table>
+	</div>
+</div>
+	<div id="div_buttons">
+	<button type="button" class="period" onClick="setperiod('2D');" id="day">1 Day</button>
+	<button type="button" class="period" onClick="setperiod('2W');">7 Days</button>
+	<button type="button"  class="period" onClick="setperiod('2M');">30 Days</button>
+	<button type="button" class="period" onClick="setperiod('Y');">1 Year</button>
+	</div>
+  </body>
+  	<script src="js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+	var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=');
+        if (p.length != 2) continue;
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+	})(window.location.search.substr(1).split(';'));
+	
+	var items = qs["ele"];
+	var axis = qs["a"];
+	var period = qs["p"];
+	var url = new Array();
+	var time = new Array();
+	var chdata = new Array();
+	var costs = new Array();
+	var price = new Array();
+	
+	var cold =  qs["cold"];	//Name of item Cold Water
+	var hot =  qs["hot"];		//Name of item Hot Water
+	var photo =  qs["photo"];	//Name of item Photovoltaics
+	
+	var sumT1 = new Array();
+	var sumT2 = new Array();
+	var consT1now = 0;
+	var consT2now = 0;
+	var consT1ago = 0;
+	var consT2ago = 0;
+	
+	url[0] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "pricecoldwat" + "/state";	//Cold Water price
+	url[1] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "pricehotwat" + "/state";	//Hot Water price
+	url[2] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "pricephoto" + "/state";		//Photovoltaics price
+	url[3] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "priceelet1" + "/state";		//Tarif1 price
+	url[4] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "priceelet2" + "/state";		//Tarif2 price
+	
+	for (var p = 0; p < url.length; p++)
+	{
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[p]});
+			request.done( function(data) 
+				{ 
+				  price[p] = Number(data);
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+	}
+	function requestchart()
+ 	{
+		var s;
+		var y = 0;
+		var per;
+		chdata = [];
+		time = [];
+		if (period == '2D') {var step = 5; s = 0; per = "2D"; };
+		if (period == '2M') {var step = 1; s = 671; per = "2Y"; };
+		if (period == '2W') {var step = 1; s = 717; per = "2Y"; };
+		if (period == 'Y') {var step = 7; s = 52; per = "2Y"; };
+			var request = $.ajax({type  : "GET", dataType: "json", async: false, url : location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items + "&func=last&step=" + step + "&period="+per});
+			request.done( function(data) 
+				{ 
+
+					 for (var i = s; i < data.length - 1 ; i++) 
+					{
+						chdata.push(Number (data[i].value)).toFixed(2);
+						time.push(new Date (Number (data[i].time) * 1000));
+					}
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+				var request = $.ajax({type  : "GET", dataType: "json", async: false, url : location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items + "&period=last"});
+				request.done( function(data) 
+					{ 
+					 chdata.push(Number (data[0].value)).toFixed(2);
+					 time.push(new Date (Number (data[0].time) * 1000));
+					});
+				request.fail( function()
+				{
+					console.log("Error");
+				});
+
+	}
+		
+	function costrequest()
+ 	{
+		var y = 0;
+		var s = 0; 
+		consT1now = 0;
+		consT2now = 0;
+		consT1ago = 0;
+		consT2ago = 0;
+		var now = 0;
+		sumT1 = [];
+		sumT2 = [];
+		var startT1 = "";
+		var starT2 = "";
+		temp1 = new Array();
+		temp2 = new Array();
+		url = [];
+		costs = [];
+		TarTime = new Date();
+		
+		var next = 0;
+		if (period == '2D') {var stepc = 1; s = 729; next = 1; TarTime.setDate(TarTime.getDate() - 2); var step = 1440;};
+		if (period == '2M') {var stepc = 1; s = 671; next = 30; TarTime.setDate(TarTime.getDate() - 60); var step = 24;};
+		if (period == '2W') {var stepc = 1; s = 717; next = 14; TarTime.setDate(TarTime.getDate() - 14); var step = 1440;};
+		if (period == 'Y') {var stepc = 7; s = 52; next = 52; TarTime.setDate(TarTime.getDate() - 365); var step = 24;};
+		
+		startT1 = TarTime.getFullYear()+","+(TarTime.getMonth()+1)+","+TarTime.getDate()+","+"06,00";
+		startT2 = TarTime.getFullYear()+","+(TarTime.getMonth()+1)+","+TarTime.getDate()+","+"22,00";
+		
+		url[0] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + cold +"&period=";
+		url[1] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + hot +"&period=";
+		url[2] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + photo +"&period=";
+		url[3] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items +"&start=" + startT1 +"&period=" + period + "&func=last&step=" + step;
+		url[4] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items +"&start=" + startT2 +"&period=" + period + "&func=last&step=" + step;
+		url[5] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items + "&period=last";
+		
+		for (y = 0; y < 3; y++)
+		{
+			var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[y] + "2Y" + "&func=last&step=" + stepc});
+			request.done( function(data) 
+				{ 
+				 for (var i = s; i < data.length - 1; i=i+next) 
+					{
+							costs.push(Number (data[i].value));
+					}
+				});
+			request.fail( function()
+			{					
+				console.log("Error");
+			});
+				var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[y] + "last"});
+				request.done( function(data) 
+					{ 
+					 costs.push(Number (data[0].value));
+					});
+				request.fail( function()
+				{
+					console.log("Error");
+				});
+		}
+		
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[3]});
+			request.done( function(data) 
+					{ 
+					 for (var i = 1; i < data.length; i++) 
+						{
+								temp1.push(Number (data[i].value)).toFixed(2);
+								
+						}
+					});
+				request.fail( function()
+				{					
+					console.log("Error");
+				});	
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[4]});
+			request.done( function(data) 
+				{ 
+					for (var i = 1; i < data.length; i++) 
+					{
+							temp2.push(Number (data[i].value)).toFixed(2);
+					}
+				});
+				request.fail( function()
+				{
+					console.log("Error");
+				});
+				
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[5]});
+				request.done( function(data) 
+					{ 
+					 now = Number (data[0].value).toFixed(2);
+					});
+				request.fail( function()
+				{
+					console.log("Error");
+				});
+				
+		for (i = 0; i < temp1.length - 1; i++)
+			{
+				sumT1[i] = (temp2[i] - temp1[i]) || 0;
+				sumT2[i] = (temp1[i+1] - temp2[i]) || 0;
+			}
+
+		if (TarTime.getHours() >= 6 && TarTime.getHours() <= 22) 
+		{
+			sumT1[i] =  (now - temp1[i]) || 0;
+		}
+		else 
+		{
+			sumT1[i] =  (temp2[i] - temp1[i]) || 0;
+			sumT2[i] =  (now - temp2[i]) || 0;
+		}
+		if (period != "Y")
+			{
+				for (i = 0; i < sumT1.length/2; i++)
+					{
+						consT1ago += sumT1[i];							
+						consT2ago += sumT2[i];							
+						consT1now += sumT1[i+sumT1.length/2];		
+						if(i != sumT1.length/2 - 1) 
+						{
+							consT2now += sumT2[i+sumT1.length/2];
+						}
+						else 
+							if (!(TarTime.getHours() >= 6 && TarTime.getHours() <= 22)) consT2now += sumT2[i+sumT1.length/2];
+					}
+			}
+		else 
+			{
+				for (i = 0; i < sumT1.length; i++)
+					{
+						consT1now += sumT1[i];
+						if(i != sumT1.length - 1) 
+						{
+							consT2now += sumT2[i];
+						}
+						else 
+							if (!(TarTime.getHours() >= 6 && TarTime.getHours() <= 22)) consT2now += sumT2[i];
+					}
+			}
+	}
+	
+	google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawChart); 
+	
+
+	function drawChart() {
+	var electricity = new Array();
+	requestchart();
+	costrequest();
+	var form = "";
+	electricity = [];
+	
+		for (c = 0; c < chdata.length - 1 ; c++)
+			{
+				electricity[c] = chdata[c];
+			}	
+	data = new google.visualization.DataTable();
+
+			
+			if (period == "2D") 
+			{
+				data.addColumn ( 'datetime', 'Date');
+				data.addColumn ( 'number', 'YESTERDAY');	
+				data.addColumn ( 'number', 'TODAY');
+				document.getElementById("legnow").innerHTML = "Today";
+				document.getElementById("legago").innerHTML = "Yesterday";
+				document.getElementById("chleg").innerHTML = "1 DAY AGO";
+				$('.image').css("visibility", "visible");
+				for (c = 0; c < electricity.length/2; c++) 
+					{
+						data.addRow ([time[c + electricity.length/2], electricity[c]*6, electricity[c + electricity.length/2]*6]);  
+					};
+				var dateFormatter = new google.visualization.DateFormat({pattern: 'HH:mm'});
+				dateFormatter.format(data, 0);
+				var formatter = new google.visualization.NumberFormat({fractionDigits: 3});
+				formatter.format(data, 1);
+				formatter.format(data, 2);
+				form = 'HH:mm';	
+				color = new Array('#B4B4B4', '#F65713');
+			};
+			
+		if (period == "2M") 
+		{
+			data.addColumn ( 'datetime', 'Date');
+			data.addColumn ( 'number', 'MONTH AGO');
+			data.addColumn({type: 'string', role: 'annotation'});
+			data.addColumn ( 'number', 'THIS MONTH');
+			data.addColumn({type: 'string', role: 'annotation'});
+			document.getElementById("legnow").innerHTML = "This</br>Month";
+			document.getElementById("legago").innerHTML = "Previous</br>Month";
+			document.getElementById("chleg").innerHTML = "30 DAYS AGO";		
+			$('.image').css("visibility", "visible");
+			for (c = 0; c < electricity.length/2; c++) 
+					{
+						legn = "";
+						lega = "";
+						if (isNaN(electricity[c])) legn = "N";
+						else legn = "";
+						if (isNaN(electricity[c + electricity.length/2])) lega = "N";
+						else lega = "";
+						data.addRow ([time[c + electricity.length/2], electricity[c], legn, electricity[c + electricity.length/2], lega]);  
+					};
+				var formatter = new google.visualization.NumberFormat({fractionDigits: 3});
+				formatter.format(data, 1);
+				formatter.format(data, 3);
+				var dateFormatter = new google.visualization.DateFormat({pattern: 'dd. MM.'});
+				dateFormatter.format(data, 0);
+				form = 'dd. MM.';
+				color = new Array('#B4B4B4', '#F65713');
+		}
+		 if (period == '2W')
+		{
+			document.getElementById("legnow").innerHTML = "Last</br>7 Days";
+			document.getElementById("legago").innerHTML = "Previous</br>7 Days";
+			document.getElementById("chleg").innerHTML = "7 DAYS AGO";
+			$('.image').css("visibility", "visible");
+			data.addColumn ( 'string', 'Day');
+			data.addColumn ( 'number', 'WEEK AGO');
+			data.addColumn({type: 'string', role: 'annotation'});
+			data.addColumn ( 'number', 'THIS WEEK');
+			data.addColumn({type: 'string', role: 'annotation'});			
+			var days= ["SUN", "MON","TUE","WED","THU","FRI","SAT"];
+			for (c = 0; c < electricity.length/2; c++) 
+					{
+						legn = "";
+						lega = "";
+						if (isNaN(electricity[c])) legn = "N";
+						else legn = "";
+						if (isNaN(electricity[c + electricity.length/2])) lega = "N";
+						else lega = "";
+						data.addRow ([days[time[c].getDay()], electricity[c], legn, electricity[c + electricity.length/2], lega]);  
+					};
+			var formatter = new google.visualization.NumberFormat({fractionDigits: 3});
+			formatter.format(data, 1);
+			formatter.format(data, 3);
+			form = 'dd. MM.';
+			color = new Array('#B4B4B4', '#F65713');
+		}
+		if (period == 'Y')
+		{
+			document.getElementById("legnow").innerHTML = "Last<br>Year";
+			document.getElementById("legago").innerHTML = "";
+			document.getElementById("chleg").innerHTML = "";
+			$('.image').css("visibility", "hidden");
+			 data.addColumn ( 'datetime', 'Date');
+			 data.addColumn ( 'number', 'now');	
+			 data.addColumn({type: 'string', role: 'annotation'});
+			 for (c = 0; c < electricity.length; c++) 
+						{	
+							legn = "";
+							if (isNaN(electricity[c])) legn = "N";
+							else legn = "";
+							data.addRow ([time[c], electricity[c], legn]);  
+						};
+			var formatter = new google.visualization.NumberFormat({fractionDigits: 3});
+				formatter.format(data, 1);
+			var dateFormatter = new google.visualization.DateFormat({pattern: 'dd. MM. yyyy'});
+			dateFormatter.format(data, 0);
+			form = 'MM/yy';
+			color = new Array('#F65713');
+		}
+        var clientHeight = document.getElementById('chart_div').clientHeight - 70;
+		//console.log(document.getElementById('chart_div').clientHeight);
+		var options = {
+			  chartArea: {left: 60, top: 40, width: "95%", height: clientHeight},
+			  legend: {position: 'none', alignment: 'end', textStyle: {fontSize: 16, fontName: "Titillium-regular"}},
+			  backgroundColor: { fill:'transparent'},
+			  vAxis: {minValue: 0, title: axis, titleTextStyle: {italic: false}, baselineColor: '#F6B1A1', gridlines: {color: '#F6B1A1'}, textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+			  hAxis: {format: form, gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+			  colors: color,};	
+		
+		
+		document.getElementById("coldwatnow").innerHTML = (price[0] /* (costs[2]-costs[1])*/).toFixed(2).toString() + "€";
+		document.getElementById("hotwatnow").innerHTML = (price[1] /* (costs[5]-costs[4])*/).toFixed(2).toString() + "€";
+		document.getElementById("photnow").innerHTML = (price[2] /* (costs[8]-costs[7])*/).toFixed(2).toString() + "€";
+		document.getElementById("elenowT1").innerHTML = (price[3] * consT1now).toFixed(2).toString() + "€";
+		document.getElementById("elenowT2").innerHTML = (price[4] * consT2now).toFixed(2).toString() + "€";
+		var total = price[0]/* (costs[2]-costs[1])*/ + price[1]/* (costs[5]-costs[4])*/ + price[2]/* (costs[8]-costs[7])*/+ price[3]/* consT1now)*/ + price[4] /* consT2now*/;
+		document.getElementById("totnow").innerHTML = total.toFixed(2).toString() + "€";
+		
+		if (period !="Y")
+		{
+		document.getElementById("coldwatago").innerHTML = (price[0] /* (costs[1]-costs[0])*/).toFixed(2).toString() + "€";		
+		document.getElementById("hotwatago").innerHTML = (price[1] /* (costs[4]-costs[3])*/).toFixed(2).toString() + "€";		
+		document.getElementById("photago").innerHTML = (price[2] /* (costs[7]-costs[6])*/).toFixed(2).toString() + "€";		
+		document.getElementById("eleagoT1").innerHTML = (price[3] * consT1ago).toFixed(2).toString() + "€";
+		document.getElementById("eleagoT2").innerHTML = (price[4] * consT2ago).toFixed(2).toString() + "€";
+		var totalago = price[0]/* (costs[1]-costs[0])*/ + price[1]/* (costs[4]-costs[3])*/ + price[2]/* (costs[7]-costs[6])*/+ price[3]/* consT1ago)*/ + price[4] /* consT2ago*/;
+		document.getElementById("totago").innerHTML = totalago.toFixed(2).toString() + "€";
+		}
+		else 
+		{
+		document.getElementById("coldwatago").innerHTML = "";		
+		document.getElementById("hotwatago").innerHTML = "";		
+		document.getElementById("photago").innerHTML = "";		
+		document.getElementById("eleagoT1").innerHTML = "";
+		document.getElementById("eleagoT2").innerHTML = "";
+		document.getElementById("totago").innerHTML = "";	
+		}
+		
+		if (period == "2D")
+			{
+				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+			}
+		else
+		{
+				var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+		}
+        chart.draw (data, options);
+		
+		if (period == "2D") setTimeout("drawChart()", 1000 * 60 * 5);
+		if (period == "2W") setTimeout("drawChart()", 1000 * 60 * 5);
+		if (period == "2M") setTimeout("drawChart()", 1000 * 60 * 60);
+		if (period == "Y") setTimeout("drawChart()", 1000 * 60 * 60 * 24);	
+      }		
+	function setperiod(p)
+	{
+		period = p;
+		drawChart();
+	}
+	$(document).ready(function() {
+    myInit();
+	resize();
+	document.getElementById("day").click();
+	
+	});
+	function myInit() {
+		  $('button').click(function(){
+			$('button').removeClass('period-highlight')
+			$(this).addClass('period-highlight');
+		  });
+		};
+	parent.window.addEventListener('resize', resize);
+	window.addEventListener('resize', drawChart);	
+	var x=parent.document.getElementsByTagName("iframe");
+	function resize ()
+		{
+			x[7].style.height = parent.window.innerHeight - 310 + "px";
+			x[9].style.height = parent.window.innerHeight - 310 + "px";	
+			x[4].style.height = parent.window.innerHeight - 310 + "px";			
+		}
+    </script>
+</html>

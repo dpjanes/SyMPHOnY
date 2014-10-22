@@ -1,0 +1,151 @@
+<html>
+  <head>
+  <script src="js/jquery-2.1.0.min.js"></script>
+   <script type="text/javascript">
+	var period = '2W';
+	//var url = new Array();
+	var compT1 = new Array();
+	var compT2 = new Array();
+	var priceT1now = 0;
+	var priceT2now = 0;
+	var priceT1ago = 0;
+	var priceT2ago = 0;
+    function costrequest()
+ 	{ 
+		priceT1now = 0;
+		priceT2now = 0;
+		priceT1ago = 0;
+		priceT2ago = 0;
+		var now = 0;
+		compT1 = [];
+		compT2 = [];
+		var startT1 = "";
+		var starT2 = "";
+		temp1 = new Array();
+		temp2 = new Array();
+		//url = [];
+		TarTime = new Date();
+		if (period == '2D') 
+			{
+				var step = 1440; s = 1;
+				TarTime.setDate(TarTime.getDate() - 2);
+			};
+		if (period == '2M') 
+			{
+				var step = 24; s = 1;
+				TarTime.setDate(TarTime.getDate() - 60);
+			};
+		if (period == '2W') 
+			{
+				var step = 1440; s = 1; 
+				TarTime.setDate(TarTime.getDate() - 14);
+			};
+		if (period == 'Y') 
+			{
+				var step = 24; s = 1;
+				TarTime.setDate(TarTime.getDate() - 365);
+			};
+		startT1 = TarTime.getFullYear()+","+(TarTime.getMonth()+1)+","+TarTime.getDate()+","+"09,00";
+		startT2 = TarTime.getFullYear()+","+(TarTime.getMonth()+1)+","+TarTime.getDate()+","+"10,00"
+		//url[0] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + "MemUsedPercent"/*"electric"*/ +"&start=" + startT1 +"&period=" + period + "&func=last&step=" + step;
+		//url[1] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + "MemUsedPercent"/*"electric"*/ +"&start=" + startT2 +"&period=" + period + "&func=last&step=" + step;
+
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + "MemUsedPercent"/*"electric"*/ +"&start=" + startT1 +"&period=" + period + "&func=last&step=" + step});
+			request.done( function(data) 
+					{ 
+					 for (var i = s; i < data.length; i++) 
+						{
+								temp1.push(Number (data[i].value));
+								
+						}
+					});
+				request.fail( function()
+				{					
+					console.log("Error");
+				});	
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + "MemUsedPercent"/*"electric"*/ +"&start=" + startT2 +"&period=" + period + "&func=last&step=" + step});
+			request.done( function(data) 
+				{ 
+					for (var i = s; i < data.length; i++) 
+					{
+							temp2.push(Number (data[i].value));
+					}
+				});
+				request.fail( function()
+				{
+					console.log("Error");
+				});
+				
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + "MemUsedPercent"/*"electric"*/ + "&period=last"});
+				request.done( function(data) 
+					{ 
+					 now = Number (data[0].value);
+					});
+				request.fail( function()
+				{
+					console.log("Error");
+				});
+		if (TarTime.getHours() >= 6 && TarTime.getHours() <= 22) 
+		{
+			for (i = 0; i < temp1.length - 1; i++)
+			{
+				compT1[i] = (temp2[i] - temp1[i]) || 0;
+				//console.log(compT1[i]);
+				compT2[i] = (temp1[i+1] - temp2[i]) || 0;
+				//console.log(temp1[i+1]+"/////"+temp2[i]);
+			}
+			
+			compT1[i] =  (now - temp1[i]) || 0;
+			//console.log(compT1[i]);
+			//console.log(now+"////"+temp1[i]);
+			
+		}
+		else 
+		{
+			for (i = 0; i < temp2.length - 1; i++)
+			{
+				compT1[i] = (temp2[i] - temp1[i]) || 0;
+				//console.log(temp2[i]+"/////"+temp1[i]);
+				compT2[i] = (temp1[i+1] - temp2[i]) || 0;
+				//console.log(temp1[i+1]+"/////"+temp2[i]);
+				
+			}
+			compT1[i] =  (temp2[i] - temp1[i]) || 0;
+			//console.log(temp2[i]+"/////"+temp1[i]);
+			compT2[i] =  (now - temp2[i]) || 0;
+			//console.log(now+"////"+temp2[i]);
+		}
+		if (period != "Y")
+			{
+				for (i = 0; i < compT1.length/2; i++)
+					{
+						priceT1ago += compT1[i];
+							
+						priceT2ago += compT2[i];
+							
+						priceT1now += compT1[i+compT1.length/2];
+							
+						if (TarTime.getHours() >= 6 && TarTime.getHours() <= 22 && i != compT1.length/2 - 1) priceT2now += compT2[i+compT1.length/2];
+							
+					}
+			}
+		else 
+			{
+				for (i = 0; i < compT1.length/2; i++)
+					{
+						priceT1now += compT1[i];
+						if (TarTime.getHours() >= 6 && TarTime.getHours() <= 22 && i != compT1.length - 1) priceT2now += compT2[i+compT1.length/2];
+					}
+			}
+			console.log("T1A = "+priceT1ago);
+			console.log("T2A = "+priceT2ago);
+			console.log("T1N = "+priceT1now);
+			console.log("T2N = "+priceT2now);
+	}
+	costrequest();
+    </script>
+  </head>
+  <body>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+  </body>
+</html>

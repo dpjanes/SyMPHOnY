@@ -1,0 +1,2 @@
+i 1 '{"feed":"748421773",{"version":"1.0.0","datastreams":[{"id":"state","current_value":"UNARMED"}]}}'
+exit

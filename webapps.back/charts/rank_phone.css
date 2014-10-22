@@ -1,0 +1,146 @@
+	@font-face {
+    font-family: "Titillium-normal";
+    font-style: normal;
+    font-weight: 400;
+    src: url("TitilliumWeb-Regular.ttf");
+	}
+	@font-face {
+    font-family: "Titillium-regular";
+    font-style: regular;
+    font-weight: 200;
+    src: url("TitilliumWeb-Regular.ttf");
+	}
+	#wrap
+	{	
+		width: 100%;
+		margin: 0px;
+		margin-top: -10px;
+		
+	}
+	#wrapch
+	{
+		position: relative;
+		height: 100px;
+		width: 100%;		
+	}
+	.chart
+	{
+		position: absolute;
+		margin-right: 80px;
+		width: -moz-calc(100% - 110px);
+		width: -webkit-calc(100% - 110px);
+		height: 90px;
+		margin-top: -5px;
+	}
+	.title
+	{
+		margin-top: -10px;
+		border-color:#7A7F83;
+					 border-top-width:0px;
+					 border-left-width:0px;
+					 border-right-width:0px;
+					 border-bottom-width:1px;
+					 border-style:solid;
+	}
+	#text_l
+	{
+		position: absolute;
+		text-align:right;
+		width: 100%;
+		margin-top: 2px;
+	}
+	#text_p
+	{
+		position: absolute;
+		text-align:right;
+		width: 100%;
+		margin-top: -3px;
+	}
+	.rank
+	{
+		top: 0px;
+		width: 100%;
+	}
+	.image
+	{
+		position: absolute;
+		display:inline-block;
+		margin-top: 0px;
+	}
+	#rank
+	{
+		color: white;
+		margin-top: 0px;
+		margin-left: 30px;
+		font-size: 16px;
+		font-family: Titillium-regular, Corbel, Arial;
+	}
+	#body
+	{
+		overflow: hidden;
+		background-image: -webkit-gradient(
+		linear,
+		left top,
+		left bottom,
+		color-stop(0, #3B3B3B),
+		color-stop(0.05, #535A60),
+		color-stop(0.94, #535A60),
+		color-stop(1, #3D3D3D)
+		);
+		background-image: -o-linear-gradient(bottom, #3B3B3B 0%, #535A60 5%, #535A60 90%, #3D3D3D 100%);
+		background-image: -moz-linear-gradient(bottom, #3B3B3B 0%, #535A60 5%, #535A60 90%, #3D3D3D 100%);
+		background-image: -webkit-linear-gradient(bottom, #3B3B3B 0%, #535A60 5%, #535A60 90%, #3D3D3D 100%);
+		background-image: -ms-linear-gradient(bottom, #3B3B3B 0%, #535A60 5%, #535A60 90%, #3D3D3D 100%);
+		background-image: linear-gradient(to bottom, #3B3B3B 0%, #535A60 5%, #535A60 90%, #3D3D3D 100%);
+		padding-top: 5px;
+	}
+	.name
+	{
+	color: white;
+	margin: 0px;
+	font-size: 22px;
+	font-family: Titillium-normal, Corbel, Arial;
+	}
+	#con
+	{
+	color: white;
+	margin: 0;
+	font-size: 18px;
+	font-family: Titillium-normal, Corbel, Arial;
+	}
+	#pro
+	{
+	color: #8BAD01;
+	margin: 0;
+	font-size: 18px;
+	font-family: Titillium-normal, Corbel, Arial;
+	}
+	#def
+	{
+	color: #E46A55;
+	margin: 0;
+	font-size: 18px;
+	font-family: Titillium-normal, Corbel, Arial;
+	}
+	.right
+	{
+	color: white;
+	font-size: 18px;
+	font-family: Titillium-normal, Corbel, Arial;
+	}
+	.imageleg
+	{
+		position: absolute;
+		display:inline-block;
+		margin-left: 25px;
+		margin-top: 100px;
+	}
+	.leg
+	{
+		color: #A6A7A9;
+		margin-left: 40px;
+		margin-top: 94px;
+		line-height: 160%;
+		font-family: Titillium-normal, Corbel, Arial;
+		font-size: 13px;
+	}

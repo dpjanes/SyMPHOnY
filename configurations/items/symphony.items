@@ -1,0 +1,111 @@
+Group 		All
+Group 		SyMPHOnY 	<house> 	(All)
+
+
+Switch	AlarmProcess		"Alarm"			(All)			{exec="ON: sh /home/pi/Scripts/alarm.sh"}
+Switch 	SMProcess		"Smart metering"	(All)			{exec="ON: sh /home/pi/Scripts/usb.sh"}
+
+/* smartmeter items */
+/* Electricity */
+Group 	Power 		(All)
+Group 	PowerT1_Chart 	(Power)
+Group 	PowerT2_Chart 	(Power)
+Number 	SerialE 	"Meter serial no.: [%s]" 		<smartmeter> 	(Power)
+String 	TypeE 		"Device type: [%s]" 			<device> 	(Power)
+Number 	PowerT1 	"Energy consumption T1: [%.3f kWh]" 	<energy2> 	(PowerT1_Chart)
+Number 	PowerT2 	"Energy consumption T2: [%.3f kWh]" 	<energy2> 	(PowerT2_Chart)
+
+/* PV Set */
+Group 	Production 		(All)
+Group 	Power_Chart 	(Production)
+Number 	SerialP 	"Meter serial no.: [%s]" 		<smartmeter> 	(Production)
+String 	TypeP 		"Device type: [%s]" 			<device> 	(Production)
+Number 	PowerP		"Energy production: [%.3f kWh]" 	<energy2> 	(Power_Chart)
+
+/* Water */
+Group 	Water		(All)
+Group 	WaterC_Chart	(Water)
+Group 	WaterH_Chart 	(Water)
+Number 	SerialW 	"Meter serial no.: [%s]" 		<smartmeter> 	(Water)
+String 	TypeW 		"Device type: [%s]" 			<device> 	(Water)
+Number 	WaterC 		"Cold water consumption: [%.3f m³]" 	<water> 	(WaterC_Chart)
+Number 	WaterH 		"Hot water consumption: [%.3f m³]" 	<water> 	(WaterH_Chart)
+
+/* Environment */
+Group 	Environment		(All)
+Group 	SmartTemperature_Chart 	(Environment)
+Group 	SmartHumidity_Chart 	(Environment)
+Number 	SerialS 		"Meter serial no.: [%s]" 	<smartmeter> 	(Environment)
+String 	TypeS 			"Device type: [%s]" 		<device> 	(Environment)
+Number 	SmartTemperature 	"Temperature: [%.1f °C]" 	<temperature> 	(SmartTemperature_Chart)
+Number 	SmartHumidity 		"Humidity: [%.1f %%]" 		<wind> 		(SmartHumidity_Chart)
+
+
+/* alarm items */
+String 	AlarmHandler 	"Alarm system" 			<alarm>
+String 	Alarm 		"Alert [%s]" 			<siren>
+String 	AlarmMessage 	"Status: [%s]" 			<infoalarm>
+String 	StatusMessage 	"Status: [%s]"
+String 	AlarmSTATUS1 	"DO ARM [PROCESSING..]" 	<shield4>
+String 	AlarmSTATUS2 	"DO UNARM [PROCESSING..]" 	<shield3>
+Switch 	EnableSwitch 	"Monitoring" 			<shield>	{exec="ON:./script, OFF:./scriptkill"} 
+Switch 	AlarmARM 	"DO ARM" 			<shield4>	{exec="ON: sh /home/pi/OHAB/asterisk.sh"}
+Switch 	AlarmUNARM 	"DO UNARM" 			<shield3> 	{exec="ON: sh /home/pi/OHAB/asterisk.sh"}
+Switch AlarmSwitch	"On-Off"
+
+/* hue philips */
+Group 	Hue 		(All)
+Color 	Color_Hue_1 	"Hue Bulb 1" 	<switch> 	(Hue)		{hue="1"}
+Color 	Color_Hue_2	"Hue Bulb 2" 	<switch> 	(Hue) 		{hue="2"}
+Color 	Color_Hue_3	"Hue Bulb 3" 	<switch> 	(Hue) 		{hue="3"}
+
+/* knx board */
+Group 	KNX 		(All)
+Switch 	KNX1 		"C1 Switch"  	<_0>			(KNX)		{ knx="1/6/1" }
+Switch 	KNX2 		"C2 Switch"  	<_1>			(KNX)		{ knx="1/6/2" }
+Switch 	KNX3 		"C3 Bulb"  				(KNX)		{ knx="1/6/3" }
+Switch 	KNX4 		"C4 Switch"	<socket>		(KNX)		{ knx="1/6/4" }
+Switch 	KNX5 		"C5 Switch" 	<socket>		(KNX)		{ knx="1/6/5" }
+Switch 	KNX6 		"C6 Switch" 	<outdoorlight>		(KNX)		{ knx="1/6/6" }
+Switch 	KNX7 		"C7 Switch" 	<house>			(KNX)		{ knx="1/6/7" }
+Switch 	KNX8 		"C8 Switch" 	<house>			(KNX)		{ knx="1/6/8" }
+Switch 	KNX9 		"C9 Shutter"	<rollershutter_100>	(KNX)		{ knx="1/6/9" }
+Switch 	KNX10 		"C10 Shutter"	<rollershutter_0>	(KNX)		{ knx="1/6/10" }
+
+Number prod						"Produkce [%.1f]"
+Number cons						"Spot [%.2f]"
+Number consw					"Spotw [%.1f]"
+Number consg					"Spotg [%.1f]"
+
+Number pricecoldwat					"Produkce [%.1f]"
+Number pricehotwat			"Spot [%.1f]"
+Number pricephoto				"Spotw [%.1f]"
+Number priceelet1				"Spotg [%.1f]"
+Number priceelet2				"Spotg [%.1f]"
+
+/* NTP binding demo item */
+DateTime	Date	"Date [%1$tA, %1$td.%1$tm.%1$tY]"	<calendar>	{ ntp="Europe/Prague:cz_CZ" }
+DateTime	Time	"Time [%1$tH:%1$tM]"			<_clock> 	{ ntp="Europe/Prague:cz_CZ" }
+
+
+
+
+Number 	MemUsedPercent  "Využití paměťi [%.1f %%]"     					 {systeminfo="MemUsedPercent::2000"}
+Switch	Pokus			"ok"
+Number 	MemUsed  "Využití paměťi Rasp [%.1f MB]"     					 {systeminfo="MemUsedRaspberry:2000"}
+Number 	MemUsedP  "Využití paměťi [%.1f %%]"     					 {systeminfo="MemUsedRaspberryPercent:2000"}
+
+Number 	CpuUsed  "Využití cpu [%.1f %%]"     					 {systeminfo="CpuCombined:2000"}
+Number 	CpuUsedRasp  "Využití cpu Rasp [%.1f %%]"     					 {systeminfo="CpuRaspberry:2000"}
+
+Number 	Tx  "Tx bytes [%.1f MB]"     					 {systeminfo="TxBytes:2000:eth0"}
+Number 	Rx  "Rx bytes [%.1f MB]"     					 {systeminfo="RxBytes:2000:eth0"}
+
+Number 	Tx_d  "Tx dropped [%.1f MB]"     					 {systeminfo="TxDropped:2000:eth0"}
+Number 	Rx_d  "Tx dropped [%.1f MB]"     					 {systeminfo="RxDropped:2000:eth0"}
+
+Number 	Tx_e  "Tx error [%.1f MB]"     					 {systeminfo="TxErrors:2000:eth0"}
+Number 	Rx_e  "Tx error [%.1f MB]"     					 {systeminfo="RxErrors:2000:eth0"}
+
+Number 	Tx_s  "Tx speed [%.1f MB]"     					 {systeminfo="TxSpeed:2000:eth0"}
+Number 	Rx_s  "Tx speed [%.1f MB]"     					 {systeminfo="RxSpeed:2000:eth0"}

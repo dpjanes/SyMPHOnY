@@ -1,0 +1,150 @@
+import org.openhab.core.library.types.*
+import org.openhab.core.persistence.*
+import org.openhab.model.script.actions.*
+
+var Number counter = 1
+var Number press = 0
+var Timer timer = null
+
+rule startup
+when 
+	System started
+then
+	postUpdate(Alarm,"OFF")
+	postUpdate(consg, 12.4)
+	postUpdate(prod, 9.5)
+	postUpdate(cons, 12.1)
+	postUpdate(consw, 6.4)
+	postUpdate(pricecoldwat, 10.7)
+	postUpdate(pricehotwat, 19.4)
+	postUpdate(pricephoto, 20.8)
+	postUpdate(priceelet1, 16.4)
+	postUpdate(priceelet2, 10.4)
+	
+	timer = createTimer(now.plusSeconds(60)) [|
+		sendCommand(AlarmProcess, ON)
+		sendCommand(SMProcess, ON)
+	]
+	//if(timer!=null) { 
+	//	timer.cancel
+	//	timer = null
+	//}
+end
+
+/** 
+ * shows how to check recent switch states - very helpful to avoid executing something too often, just
+ * because somebody presses a button too often (e.g. sending a notification, if the doorbell button is pressed)
+ */
+/*rule "Persistence Demo 2"
+when
+	Item DemoSwitch received command
+then
+	if(!DemoSwitch.changedSince(now.minusSeconds(5))) {
+		logInfo("Persistence Demo", "You did not press this button during the last 5 seconds!")
+	}
+end
+*/
+
+/* HOGADE part */
+
+rule Clear
+when
+	Item EnableSwitch received command OFF
+then
+	postUpdate(AlarmMessage,"-")
+	postUpdate(Alarm,"OFF"
+	)
+end
+
+rule jablotron
+when
+	Item AlarmARM received update ON
+then
+	postUpdate(StatusMessage, "WORKING1")
+end
+
+rule jablotron2
+when
+	Item AlarmUNARM received update ON
+then
+	postUpdate(StatusMessage, "WORKING2")
+end
+
+rule alarm
+when 
+	Item AlarmMessage changed
+then
+	if(AlarmMessage.state == "ALARM"){
+		sendDirectMessage('@xmasek12','ALARM')
+	} else if (AlarmMessage.state == "ARMED"){
+		sendDirectMessage('@xmasek12','ARMED')
+	} else if (AlarmMessage.state == "UNARMED"){
+		sendDirectMessage('@xmasek12','UNARMED')
+	}
+end	
+
+rule swtchon
+when Item AlarmSwitch received command ON
+then
+	//if (press == 0)
+	//{
+		sendCommand(AlarmARM, ON)
+	//}
+	//press = 0
+	
+end
+
+rule swtchoff
+when Item AlarmSwitch received command OFF
+then
+	//if (press == 0)
+	//{
+		sendCommand(AlarmUNARM, ON)
+	//}
+	//press = 0
+end
+
+rule onoffalarm
+when
+Item AlarmMessage changed
+then 
+	if (AlarmMessage.state == "ARMED") {postUpdate(AlarmSwitch, ON) press = 1}
+	if (AlarmMessage.state == "UNARMED") {postUpdate(AlarmSwitch, OFF) press = 1}
+end
+	
+rule knx
+when 	
+	Item KNX9 received update ON
+then
+	postUpdate(KNX10, OFF)
+end
+
+rule knx2
+when
+	Item KNX10 received update ON
+then
+	postUpdate(KNX9, OFF)
+
+end
+
+rule StopTimer
+when 
+	Item AlarmProcess received update ON
+then
+	timer.cancel
+	timer = null
+end
+
+rule temperature
+when
+	Item SmartTemperature changed 
+then
+	if(SmartTemperature.state <= 25){
+		sendDirectMessage('@xmasek12','Temperature is bellow 25°C')
+		//sendXbmcNotification( '192.168.188.46', 9090, 'Temperature', 'Temperature is bellow 25 C')
+	} else {
+		sendDirectMessage('@xmasek12','Temperature is above 25°C')
+		//sendXbmcNotification( '192.168.188.46', 9090, 'Temperature', 'Temperature is above 25 C')
+	}
+end
+

@@ -1,0 +1,242 @@
+<html>
+  <head>
+	<meta charset="UTF-8">
+	<style>
+		#title {text-align:left; font-family:Arial; color: #EF4E24; font-size:25px; margin:10}
+		#chart_div {width: 100%; height: 70%; opacity: 1.0; border-style:solid;
+					 border-color:#EF4E24;
+					 border-top-width:10px;
+					 border-left-width:0px;
+					 border-right-width:0px;
+					 border-bottom-width:5px;}
+		#div_buttons {width: 100%; height: 50px; text-align: center; margin-top: 30px;}
+		button{	height:40px; 
+				position:relative; 
+				width:100px; margin-top: 5px;
+				background-color:transparent;
+				-webkit-border-top-left-radius:5px;
+				-moz-border-radius-topleft:5px;
+				border-top-left-radius:5px;
+				-webkit-border-top-right-radius:5px;
+				-moz-border-radius-topright:5px;
+				border-top-right-radius:5px;
+				-webkit-border-bottom-right-radius:5px;
+				-moz-border-radius-bottomright:5px;
+				border-bottom-right-radius:5px;
+				-webkit-border-bottom-left-radius:5px;
+				-moz-border-radius-bottomleft:5px;
+				border-bottom-left-radius:5px;
+				border-color: transparent;
+				font-family:Arial;
+				font-size:20px;
+				text-align:center;
+				margin-left: 20px
+			}
+			button:hover {
+				background-color:#EC441D;
+				color: white;
+				height:40px; position:relative; width:100px; margin-left: 20px; margin-top: 5px;
+			}
+			button:focus {
+				background-color:#EC441D;
+				color: white;
+				outline: 0;
+				height:40px; position:relative; width:100px; margin-left: 20px; margin-top: 5px;
+			}
+			button:active {
+				position:relative;
+				top:1px;
+				height:40px; position:relative; width:100px; margin-left: 20px; margin-top: 5px;
+			}
+	</style>
+  </head>
+  <body>
+	<h1 id="title"></h1>
+    <div id="chart_div"></div>
+	<div id="div_buttons">
+	<button type="button"  onClick="setperiod('2D');" autofocus="autofocus">1 Day</button>
+	<button type="button" onClick="setperiod('2W');">7 Days</button>
+	<button type="button"  onClick="setperiod('2M');">30 Days</button>
+	<button type="button" onClick="setperiod('Y');">1 Year</button>
+	</div>
+  </body>
+  	<script src="js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+	
+	var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=');
+        if (p.length != 2) continue;
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+	})(window.location.search.substr(1).split(';'));
+	
+	var items = qs["item"];
+	var title = qs["t"];
+	var axis = qs["a"];
+	var period = qs["p"];
+	var url;
+	var value = new Array();
+	var time = new Array();
+	
+	document.getElementById("title").innerHTML = title;
+	
+	function request()
+ 	{
+		var i;
+		value = [];
+		time = [];
+		if (period == '2M') {var step = 1; i = 0;};
+		if (period == '2D') {var step = 5; i = 1;};
+		if (period == '2W') {var step = 1440; i = 1;};
+		if (period == 'Y') {var step = 24; i = 0;};
+		url = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items + "&step=" + step + "&period=";
+		
+			var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url + period});
+			request.done( function(data) 
+				{ 
+				 for (i; i < data.length; i++) 
+					{
+						value.push(Number (data[i].value));
+						time.push(new Date (Number (data[i].time) * 1000));
+					};
+					console.log(value.length);
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+	}
+	
+	/*function update()
+	{	
+		var size = value.length / url.length;
+		for (var i = 0; i < url.length; i++)
+		{
+			var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[i] + "last"});
+				request.done( function(data) 
+				{ 
+									if (i == 0)
+										{
+											time.shift();
+											time.push(new Date (Number (data[0].time) * 1000));
+										}
+								value.splice(((i+1) * size) ,0, Number (data[0].value));	
+								value.splice((i * size) , 1);
+					});
+		}
+	}*/
+	
+	google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawChart); 
+	
+
+	function drawChart() {
+	request();
+	data = new google.visualization.DataTable();
+	if (period != 'Y' && period != '2W')
+		{
+		data.addColumn ( 'datetime', 'Date');
+		if (period == "2D") {data.addColumn ( 'number', 'Yesterday');	data.addColumn ( 'number', 'Today');};
+		if (period == "2M") {data.addColumn ( 'number', 'Month ago');	data.addColumn ( 'number', 'This month');}
+		
+		for (c = 0; c < value.length/2; c++) 
+					{
+						data.addRow ([time[c + value.length/2], value[c], value[c + value.length/2]]);  
+					};
+		}
+		else if (period == '2W')
+		{
+			data.addColumn ( 'string', 'Day');
+			data.addColumn ( 'number', 'This week');	
+			data.addColumn ( 'number', 'Week ago');
+			var days= ["SUN", "MON","TUE","WED","THU","FRI","SAT"];
+			for (c = 0; c < value.length/2; c++) 
+					{
+						data.addRow ([days[time[c].getDay()], value[c + value.length/2], value[c]]);  
+					};
+		}
+		else 
+		{
+		 data.addColumn ( 'datetime', 'Date');
+		 data.addColumn ( 'number', 'now');	
+		 for (c = 0; c < value.length; c++) 
+					{
+						data.addRow ([time[c], value[c]]);  
+					};
+		}
+		if (period == '2D') 
+		{
+		var dateFormatter = new google.visualization.DateFormat({pattern: 'HH:mm:ss'});
+		dateFormatter.format(data, 0);
+		var options = {
+		  chartArea: {left: 60, top: 40, width: "95%", height: "80%"},
+		  legend: {position: 'top', alignment: 'end'},
+		  backgroundColor: { fill:'transparent'},
+          vAxis: {minValue: 0, title: axis, titleTextStyle: {italic: false}, baselineColor: '#F6B1A1', gridlines: {color: '#F6B1A1'}, textStyle: {color: '#565656'}},
+		  hAxis: {format:'HH:mm', gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: '#565656'}},
+		  colors: ['#B4B4B4', '#F65713'],
+        };	}
+		if (period == '2W') 
+		{
+		var options = {
+		  chartArea: {left: 60, top: 40, width: "95%", height: "80%"},
+		  legend: {position: 'top', alignment: 'end'},
+		  backgroundColor: { fill:'transparent'},
+          vAxis: {minValue: 0, title: axis, titleTextStyle: {italic: false}, gridlines: {color: '#F6B1A1'}, baselineColor: '#F6B1A1', textStyle: {color: '#565656'}},
+		  hAxis: {color: "transparent", textStyle: {color: '#565656'}},
+		  colors: ['#F65713', '#B4B4B4'],
+        };	}
+		if (period == '2M') 
+		{
+		var dateFormatter = new google.visualization.DateFormat({pattern: 'dd. MM. HH:mm'});
+		dateFormatter.format(data, 0);
+		var options = {
+		  chartArea: {left: 60, top: 40, width: "95%", height: "80%"},
+		  legend: {position: 'top', alignment: 'end'},
+		  backgroundColor: { fill:'transparent'},
+          vAxis: {minValue: 0, title: axis, titleTextStyle: {italic: false}, baselineColor: '#F6B1A1', textStyle: {color: '#565656'}, gridlines: {color: '#F6B1A1'}},
+		  hAxis: {format:'dd. MM.', gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: '#565656'}},
+		  colors: ['#B4B4B4', '#F65713'],
+        }		};
+		if (period == 'Y') 
+		{
+		var dateFormatter = new google.visualization.DateFormat({pattern: 'dd. MM. yyyy HH:mm'});
+		dateFormatter.format(data, 0);
+		var options = {
+		  chartArea: {left: 60, top: 40, width: "95%", height: "80%"},
+		  legend: 'none',
+		  backgroundColor: { fill:'transparent'},
+          vAxis: {minValue: 0, title: axis, titleTextStyle: {italic: false}, baselineColor: '#F6B1A1', gridlines: {color: '#F6B1A1'}, textStyle: {color: '#565656'}},
+		  hAxis: {format:'MM/yy', gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: '#565656'}},
+		  colors: ['#F65713', '#B4B4B4'],
+        }		};  
+
+		if (period != "2W")
+			{
+				var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+			}
+		else
+		{
+				var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+		}
+        chart.draw (data, options);
+		
+		if (period == "2D") setTimeout("drawChart()", 1000 * 60 * 5);
+		if (period == "2W") setTimeout("drawChart()", 1000 * 60 * 5);
+		if (period == "2M") setTimeout("drawChart()", 1000 * 60 * 60);
+		if (period == "Y") setTimeout("drawChart()", 1000 * 60 * 60 * 24);	
+      }		
+	function setperiod(p)
+	{
+		period = p;
+		drawChart();
+	}
+	window.addEventListener('resize', drawChart);	  
+    </script>
+</html>

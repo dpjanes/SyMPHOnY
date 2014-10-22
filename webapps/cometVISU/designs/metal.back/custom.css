@@ -1,0 +1,155 @@
+/*
+ * custom local css to overload declarations in each design (basic.css)
+ */
+#id_1_1_8
+{
+	margin-left: -15px;
+	margin-top: 21px;
+}
+
+#id_1_1_17
+{
+	margin-top: 10px;
+}
+
+#id_1_1_7
+{
+	margin-top: 5px;
+}
+
+#id_1_2_11
+{
+	margin-top: 108px;
+}
+
+#id_1_0_3
+{
+	margin-top: 9px;
+}
+
+#id_4_0_1_1, #id_4_0_2_1, #id_1_2_1, #id_1_1_1, #id_4_0_3_1
+{
+	margin-bottom: 5px;
+}
+
+#id_1_1_10
+{
+	margin-bottom: 10px;
+}
+
+#id_1_1_18
+{
+	margin-top: -164px
+}
+
+#id_4_0_2_10
+{
+	margin-top: -84px;
+}
+
+#id_4_0_2_9
+{
+	margin-top: -2px;
+}
+
+#id_1_1_13
+{
+	margin-bottom: 6px;
+}
+
+#id_1_1_3, #id_1_1_6
+{
+	margin-top: -5px;
+}
+
+#id_1
+{
+	background-image: url("images/top.png");
+	background-repeat: repeat-x;
+	background-position: left 14px;
+}
+
+#id_1_1_12
+{
+	margin-bottom: -6px;
+	padding-top: 6px;
+}
+
+#id_4_0_0_2, #id_4_0_0_3, #id_4_0_0_4, #id_4_0_0_5, #id_4_0_0_6
+{
+	margin-bottom: -25px;
+}
+
+
+#id_4_0_1_3, #id_4_0_1_4, #id_4_0_1_2, #id_4_0_1_6, #id_4_0_1_7, #id_4_0_1_8, #id_4_0_1_9, #id_4_0_1_10,
+#id_4_0_1_11, #id_4_0_1_13, #id_4_0_1_14, #id_4_0_1_15, #id_4_0_1_16, #id_4_0_1_17, 
+#id_4_0_1_18, #id_4_0_1_20, #id_4_0_1_21, #id_4_0_1_22, #id_4_0_1_23, #id_4_0_1_24, #id_4_0_1_25, #id_4_0_1_27, #id_4_0_1_28, #id_4_0_1_29,
+#id_3_0_2_2, #id_3_0_2_3, #id_3_0_2_5, #id_3_0_2_6, #id_3_0_2_7, #id_3_0_2_8, #id_3_0_2_10, #id_3_0_2_11,
+#id_3_0_2_12, #id_3_0_2_13, #id_3_0_2_15, #id_3_0_2_16
+{
+	border: solid;
+	border-color: #F7A691;
+	border-width: 0px;
+	border-bottom-width: 1px;
+	margin-bottom: -2px;	
+	margin-top: 5px;
+}
+
+#id_4_0_1_30, #id_4_0_1_31, #id_4_0_1_32, #id_4_0_1_34, #id_4_0_2_5, #id_3_0_2_18, #id_3_0_2_21, #id_4_0_1_35, #id_4_0_1_36
+{
+	margin-top: 5px;
+}
+#id_4_0_1_37
+{
+	margin-top: 18px;
+}
+
+#id_1_0, #id_1_1, #id_1_2
+{
+	margin-top: 14px;
+}
+
+#id_5_1, #id_6_1
+{
+	margin-top: 14px;
+	padding-top: 7px;
+	background-image: url("images/top.png");
+	background-repeat: repeat-x;
+	background-position: left top;
+}
+
+#id_4_0_0_12
+{
+	margin-top: 20px;
+}
+
+#id_4_0_2_3, #id_4_0_3_3, #id_4_0_3_6, #id_4_0_3_8, #id_4_0_3_11, #id_4_0_3_13, #id_4_0_3_16, #id_4_0_3_18, #id_4_0_3_21, #id_4_0_3_23, #id_4_0_3_26, #id_4_0_2_7, 
+#id_3_0_2_16, #id_3_0_2_17, #id_3_0_2_18, #id_3_0_2_20, #id_3_0_2_21, #id_3_0_2_3, #id_3_0_2_6, #id_3_0_2_8, #id_3_0_2_11, #id_3_0_2_13, #id_3_0_1_3, #id_3_0_1_6
+{
+	padding-top: 6px;
+}
+#id_4_0_2_7
+{
+	padding-bottom: 2px;
+}
+
+#id_3_0_0, #id_3_0_1
+{
+	width: 100%;
+}
+
+#id_1_2_4, #id_1_2_7, #id_1_2_10
+{
+		padding-top: 5px;
+		padding-bottom: 5px;
+}
+
+#id_4_0_2_8
+{
+	padding-top: 3px;
+}
+
+#id_4_0_2_6
+{
+	padding-top: 8px;
+}

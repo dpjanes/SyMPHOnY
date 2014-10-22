@@ -1,0 +1,381 @@
+<html>
+  <head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+  <span id="wrapch">
+	<h1 id="title">Electricity Consumption</h1>
+    <div id="chart_div"></div>
+</span>
+
+<span id="wraptable">
+	<h1 id="title">Cost & Earnings</h1>
+	<div id="table_div">
+	<table class="table">
+	<tr id="legend"><td></td><td id="legnow"></td><td id="legago"></td></tr>
+	<tr class="line"><td>Cold Water</td><td id="coldwatnow"></td><td id="coldwatago"></td></tr>
+	<tr class="line"><td>Hot Water</td><td id="hotwatnow"></td><td id="hotwatago"></td></tr>
+	<tr class="line"><td>Electricity T1</td><td id="elenowT1"></td><td id="eleagoT1"></td></tr>
+	<tr class="line"><td>Electricity T2</td><td id="elenowT2"></td><td id="eleagoT2"></td></tr>
+	<tr id="photovolt"><td>Photovoltaics</td><td id="photnow"></td><td id="photago"></td></tr>
+	<tr id="total"><td>Total</td><td id="totnow"></td><td id="totago"></td></tr>
+	</table>
+	</div>
+</span>
+	<div id="div_buttons">
+	<button type="button" class="period" onClick="setperiod('2D');" id="day">1 Day</button>
+	<button type="button" class="period" onClick="setperiod('2W');">7 Days</button>
+	<button type="button"  class="period" onClick="setperiod('2M');">30 Days</button>
+	<button type="button" class="period" onClick="setperiod('Y');">1 Year</button>
+	</div>
+  </body>
+  	<script src="js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+	
+	var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=');
+        if (p.length != 2) continue;
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+	})(window.location.search.substr(1).split(';'));
+	
+	var items = qs["item"];
+	var axis = qs["a"];
+	var period = qs["p"];
+	var url = new Array();
+	var electricity = new Array();
+	var time = new Array();
+	var chdata = new Array();
+	var costs = new Array();
+	var price = new Array();
+	
+	url[0] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "pricegas" + "/state";
+	url[1] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "priceelectric" + "/state";
+	url[2] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "pricephoto" + "/state";
+	url[3] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "pricewater" + "/state";
+	for (var p = 0; p < 4; p++)
+	{
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[p]});
+			request.done( function(data) 
+				{ 
+				  price[p] = Number(data);
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+	}
+	price[0] = 1;
+	price[1] = 1;
+	price[2] = 1;
+	price[3] = 1;
+	
+	function requestchart()
+ 	{
+		var s;
+		var y = 0;
+		chdata = [];
+		time = [];
+		if (period == '2D') {var step = 5; s = 1; url_j = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items + "&func=last&step=" + step + "&period=2D";};
+		if (period == '2M') {var step = 1; s = 671; url_j = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items + "&func=last&step=" + step + "&period=2Y";};
+		if (period == '2W') {var step = 1; s = 717; url_j = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items + "&func=last&step=" + step + "&period=2Y";};
+		if (period == 'Y') {var step = 7; s = 52; url_j = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items + "&func=last&step=" + step + "&period=2Y";};
+			var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url_j});
+			request.done( function(data) 
+				{ 
+				//if (period == "2D")
+				//{
+				 for (var i = s; i < data.length; i++) 
+					{
+							chdata.push(Number (data[i].value));
+							time.push(new Date (Number (data[i].time) * 1000));
+					}
+				/*}
+				else {
+					 for (var i = s; i < data.length - 1 ; i++) 
+					{
+						chdata.push(Number (data[i].value));
+						time.push(new Date (Number (data[i].time) * 1000));
+					}
+				}*/
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+			/*if (period != "2D")
+			{
+				url_j = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items + "&period=last";
+				var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url_j});
+				request.done( function(data) 
+					{ 
+					 chdata.push(Number (data[0].value));
+					 time.push(new Date (Number (data[0].time) * 1000));
+					});
+				request.fail( function()
+				{
+					console.log("Error");
+				});
+			}*/
+	}
+	
+	/*function costrequest()
+ 	{
+		var y = 0;
+		var s = 0; 
+		url = [];
+		costs = [];
+		var next = 0;
+		if (period == '2D') {var step = 1; s = 729; next = 1};
+		if (period == '2M') {var step = 1; s = 671; next = 30};
+		if (period == '2W') {var step = 1; s = 717; next = 14};
+		if (period == 'Y') {var step = 7; s = 52; next = 52};
+		url[0] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + "MemUsedPercent"/*"cold"+"&period=";
+		url[1] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + "MemUsedPercent"/*"electric" +"&period=";
+		url[2] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + "MemUsedPercent"/*"photo" +"&period=";
+		url[3] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + "MemUsedPercent"/*"hot" +"&period=";
+		
+		for (y = 0; y < url.length; y++)
+		{
+			var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[y] + "2Y" + "&func=last&step=" + step});
+			request.done( function(data) 
+				{ 
+				 for (var i = s; i < data.length - 1; i=i+next) 
+					{
+							costs.push(Number (data[i].value));
+							console.log(data[i]);
+					}
+				});
+			request.fail( function()
+			{					
+				console.log("Error");
+			});
+				var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[y] + "last"});
+				request.done( function(data) 
+					{ 
+					 costs.push(Number (data[0].value));
+					 console.log(data[0]);
+					});
+				request.fail( function()
+				{
+					console.log("Error");
+				});
+		}
+	}*/
+	
+	google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawChart); 
+	
+
+	function drawChart() {
+	requestchart();
+	//costrequest();
+	electricity = [];
+	
+		for (c = 0; c < chdata.length - 1; c++)
+			{
+				electricity[c] = chdata[c];
+			}	
+		
+	data = new google.visualization.DataTable();
+
+			
+			if (period == "2D") 
+			{
+				data.addColumn ( 'datetime', 'Date');
+				data.addColumn ( 'number', 'YESTERDAY');	
+				data.addColumn ( 'number', 'TODAY');
+				document.getElementById("legnow").innerHTML = "Today";
+				document.getElementById("legago").innerHTML = "Yesterday";
+				for (c = 0; c < electricity.length/2; c++) 
+					{
+						data.addRow ([time[c + electricity.length/2], electricity[c]*6, electricity[c + electricity.length/2]*6]);  
+					};
+				var dateFormatter = new google.visualization.DateFormat({pattern: 'HH:mm'});
+				dateFormatter.format(data, 0);
+				var formatter = new google.visualization.NumberFormat({fractionDigits: 3});
+				formatter.format(data, 1);
+				formatter.format(data, 2);
+				var options = {
+				chartArea: {left: 60, top: 40, width: "95%", height: "75%"},
+				legend: {position: 'top', alignment: 'end', textStyle: {fontSize: 16, fontName: "Titillium-regular"}},
+				backgroundColor: { fill:'transparent'},
+				//tooltip: { trigger: 'none' },
+				vAxis: {minValue: 0, title: axis, titleTextStyle: {italic: false}, baselineColor: '#F6B1A1', gridlines: {color: '#F6B1A1'}, textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+				hAxis: {format:'HH:mm', gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+				colors: ['#B4B4B4', '#F65713'],
+				};	
+			};
+			
+		if (period == "2M") 
+		{
+			data.addColumn ( 'datetime', 'Date');
+			data.addColumn ( 'number', 'MONTH AGO');
+			data.addColumn({type: 'string', role: 'annotation'});
+			data.addColumn ( 'number', 'THIS MONTH');
+			data.addColumn({type: 'string', role: 'annotation'});
+			document.getElementById("legnow").innerHTML = "This</br>Month";
+			document.getElementById("legago").innerHTML = "Previous</br>Month";	
+			for (c = 0; c < electricity.length/2; c++) 
+					{
+						legn = "";
+						lega = "";
+						if (isNaN(electricity[c])) legn = "N";
+						else legn = "";
+						if (isNaN(electricity[c + electricity.length/2])) lega = "N";
+						else lega = "";
+						data.addRow ([time[c + electricity.length/2], electricity[c], legn, electricity[c + electricity.length/2], lega]);  
+					};
+				var formatter = new google.visualization.NumberFormat({fractionDigits: 3});
+				formatter.format(data, 1);
+				formatter.format(data, 3);
+				var dateFormatter = new google.visualization.DateFormat({pattern: 'dd. MM.'});
+				dateFormatter.format(data, 0);
+				var options = {
+				chartArea: {left: 60, top: 40, width: "95%", height: "75%"},
+				//tooltip: { trigger: 'none' },
+				legend: {position: 'top', alignment: 'end', textStyle: {fontSize: 16, fontName: "Titillium-regular"}},
+				backgroundColor: { fill:'transparent'},
+				vAxis: {minValue: 0, title: axis, titleTextStyle: {italic: false}, baselineColor: '#F6B1A1', textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}, gridlines: {color: '#F6B1A1'}},
+				hAxis: {format:'dd. MM.', gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+				colors: ['#B4B4B4', '#F65713'],}
+		}
+		 if (period == '2W')
+		{
+			document.getElementById("legnow").innerHTML = "Last</br>7 Days";
+			document.getElementById("legago").innerHTML = "Previous</br>7 Days";
+			data.addColumn ( 'string', 'Day');
+			data.addColumn ( 'number', 'WEEK AGO');
+			data.addColumn({type: 'string', role: 'annotation'});
+			data.addColumn ( 'number', 'THIS WEEK');
+			data.addColumn({type: 'string', role: 'annotation'});			
+			var days= ["SUN", "MON","TUE","WED","THU","FRI","SAT"];
+			for (c = 0; c < electricity.length/2; c++) 
+					{
+						legn = "";
+						lega = "";
+						if (isNaN(electricity[c])) legn = "N";
+						else legn = "";
+						if (isNaN(electricity[c + electricity.length/2])) lega = "N";
+						else lega = "";
+						data.addRow ([days[time[c].getDay()], electricity[c], legn, electricity[c + electricity.length/2], lega]);  
+					};
+			var formatter = new google.visualization.NumberFormat({fractionDigits: 3});
+			formatter.format(data, 1);
+			formatter.format(data, 3);
+			var options = {
+			chartArea: {left: 60, top: 40, width: "95%", height: "75%"},
+			//tooltip: { trigger: 'none' },
+			legend: {position: 'top', alignment: 'end', textStyle: {fontSize: 16, fontName: "Titillium-regular"}},
+			backgroundColor: { fill:'transparent'},
+			vAxis: {minValue: 0, title: axis, titleTextStyle: {italic: false}, gridlines: {color: '#F6B1A1'}, baselineColor: '#F6B1A1', textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+			hAxis: {color: "transparent", textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+			colors: ['#B4B4B4','#F65713'],};
+		}
+		if (period == 'Y')
+		{
+			document.getElementById("legnow").innerHTML = "Last<br>Year";
+			document.getElementById("legago").innerHTML = "";
+			 data.addColumn ( 'datetime', 'Date');
+			 data.addColumn ( 'number', 'now');	
+			 data.addColumn({type: 'string', role: 'annotation'});
+			 for (c = 0; c < electricity.length; c++) 
+						{	
+							legn = "";
+							if (isNaN(electricity[c])) legn = "N";
+							else legn = "";
+							data.addRow ([time[c], electricity[c], legn]);  
+						};
+			var formatter = new google.visualization.NumberFormat({fractionDigits: 3});
+				formatter.format(data, 1);
+			var dateFormatter = new google.visualization.DateFormat({pattern: 'dd. MM. yyyy'});
+			dateFormatter.format(data, 0);
+			var options = {
+			  chartArea: {left: 60, top: 40, width: "95%", height: "75%"},
+			  //tooltip: { trigger: 'none' },
+			  legend: 'none',
+			  backgroundColor: { fill:'transparent'},
+			  vAxis: {minValue: 0, title: axis, titleTextStyle: {italic: false}, baselineColor: '#F6B1A1', gridlines: {color: '#F6B1A1'}, textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+			  hAxis: {format:'MM/yy', gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+			  colors: ['#F65713', '#B4B4B4'],};		
+		}
+		
+		if (period !="Y")
+		{
+		document.getElementById("coldwatnow").innerHTML = (price[0] /* (costs[2]-costs[1])*/).toFixed(2).toString() + "€";
+		document.getElementById("hotwatnow").innerHTML = (price[1] /* (costs[5]-costs[4])*/).toFixed(2).toString() + "€";
+		document.getElementById("photnow").innerHTML = (price[2] /* (costs[8]-costs[7])*/).toFixed(2).toString() + "€";
+		document.getElementById("elenowT1").innerHTML = (price[3] /* (costs[11]-costs[10])*/).toFixed(2).toString() + "€";
+		document.getElementById("elenowT2").innerHTML = (price[3] /* (costs[11]-costs[10])*/).toFixed(2).toString() + "€";
+		var total = price[0]/* (costs[2]-costs[1])*/ + price[1]/* (costs[5]-costs[4])*/ + price[2]/* (costs[8]-costs[7])*/+ price[3]/* (costs[11]-costs[10])*/;
+		
+		document.getElementById("totnow").innerHTML = total.toFixed(2).toString() + "€";		
+		
+		document.getElementById("coldwatago").innerHTML = (price[0] /* (costs[1]-costs[0])*/).toFixed(2).toString() + "€";		
+		document.getElementById("hotwatago").innerHTML = (price[1] /* (costs[4]-costs[3])*/).toFixed(2).toString() + "€";		
+		document.getElementById("photago").innerHTML = (price[2] /* (costs[7]-costs[6])*/).toFixed(2).toString() + "€";		
+		document.getElementById("eleagoT1").innerHTML = (price[3] /* (costs[10]-costs[9])*/).toFixed(2).toString() + "€";
+		document.getElementById("eleagoT2").innerHTML = (price[3] /* (costs[10]-costs[9])*/).toFixed(2).toString() + "€";
+		var totalago = price[0]/* (costs[1]-costs[0])*/ + price[1]/* (costs[4]-costs[3])*/ + price[2]/* (costs[7]-costs[6])*/+ price[3]/* (costs[10]-costs[9])*/;
+		document.getElementById("totago").innerHTML = totalago.toFixed(2).toString() + "€";
+		}
+		else 
+		{
+		document.getElementById("coldwatnow").innerHTML = (price[0] /* (costs[2]-costs[1])*/).toFixed(2).toString() + "€";
+		document.getElementById("hotwatnow").innerHTML = (price[1] /* (costs[5]-costs[4])*/).toFixed(2).toString() + "€";
+		document.getElementById("photnow").innerHTML = (price[2] /* (costs[8]-costs[7])*/).toFixed(2).toString() + "€";
+		document.getElementById("elenowT1").innerHTML = (price[3] /* (costs[11]-costs[10])*/).toFixed(2).toString() + "€";
+		document.getElementById("elenowT2").innerHTML = (price[3] /* (costs[11]-costs[10])*/).toFixed(2).toString() + "€";
+		var total = price[0]/* (costs[2]-costs[1])*/ + price[1]/* (costs[1]-costs[0])*/ + price[2]/* (costs[3]-costs[2])*/+ price[3]/* (costs[7]-costs[6])*/;
+		document.getElementById("totnow").innerHTML = total.toFixed(2).toString() + "€";
+		
+		document.getElementById("coldwatago").innerHTML = "";		
+		document.getElementById("hotwatago").innerHTML = "";		
+		document.getElementById("photago").innerHTML = "";		
+		document.getElementById("eleagoT1").innerHTML = "";
+		document.getElementById("eleagoT2").innerHTML = "";
+		document.getElementById("totago").innerHTML = "";	
+		}
+		
+		
+
+		if (period == "2D")
+			{
+				var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+			}
+		else
+		{
+				var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+		}
+        chart.draw (data, options);
+		
+		if (period == "2D") setTimeout("drawChart()", 1000 * 60 * 5);
+		if (period == "2W") setTimeout("drawChart()", 1000 * 60 * 5);
+		if (period == "2M") setTimeout("drawChart()", 1000 * 60 * 60);
+		if (period == "Y") setTimeout("drawChart()", 1000 * 60 * 60 * 24);	
+      }		
+	function setperiod(p)
+	{
+		period = p;
+		drawChart();
+	}
+	$(document).ready(function() {
+    myInit();
+	document.getElementById("day").click();
+	});
+	function myInit() {
+		  $('button').click(function(){
+			$('button').removeClass('period-highlight')
+			$(this).addClass('period-highlight');
+		  });
+		};
+	window.addEventListener('resize', drawChart);	  
+    </script>
+</html>

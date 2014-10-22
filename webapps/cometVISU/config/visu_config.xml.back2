@@ -1,0 +1,760 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Sample configuration for CometVisu as a Frontend for openHAB --> 
+<pages xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" design="metal" xsi:noNamespaceSchemaLocation="../visu_config.xsd" enable_column_adjustment="true" bind_click_to_widget="false" scroll_speed="0" lib_version="7" backend="oh">
+	<meta>		
+		<icons>
+		<!-- in this section one can define links to user specific icons -->
+			<!-- This one is the link to the openHAB symbol for the navigation bar -->
+			<icon-definition name="openHAB" uri="../images/icon.png"/>
+			<icon-definition name="shield" uri="../images/alarmsystem_off.png"/>
+			<icon-definition name="shield3" uri="../images/alarmsystem_on.png"/>
+			<icon-definition name="switch" uri="../images/light-switch.png"/>
+			<icon-definition name="switchon" uri="../images/slider.png"/>
+			<icon-definition name="on" uri="../images/on.png"/>
+			<icon-definition name="off" uri="../images/off.png"/>
+			<icon-definition name="temperature" uri="../images/temperature2.png"/>
+			<icon-definition name="wind" uri="../images/wind.png"/>
+			<icon-definition name="0" uri="../images/_0.png"/>
+			<icon-definition name="1" uri="../images/_1.png"/>
+			<icon-definition name="socket" uri="../images/plug.png"/>
+			<icon-definition name="outdoorlight" uri="../images/outdoorlight.png"/>
+			<icon-definition name="house" uri="../images/house.png"/>
+			<icon-definition name="rollershutter_100" uri="../images/sunshade_closed.png"/>
+			<icon-definition name="rollershutter_0" uri="../images/sunshade_open.png"/>
+			<icon-definition name="cost" uri="../images/icon_costs_on.png"/>
+			<icon-definition name="electricity" uri="../images/icon_electricity_on.png"/>
+			<icon-definition name="gas" uri="../images/water_active.png"/>
+			<icon-definition name="home" uri="../images/icon_home_on.png"/>
+			<icon-definition name="devices" uri="../images/devices_active.png"/>
+			<icon-definition name="setting" uri="../images/icon_settings_on.png"/>
+			<icon-definition name="info" uri="../images/icon_info_on.png"/>
+			<icon-definition name="alerton" uri="../images/onstate.png"/>
+			<icon-definition name="siren" uri="../images/alert_off.png"/>
+			<icon-definition name="sirenom" uri="../images/alert_on.png"/>
+			<icon-definition name="alertoff" uri="../images/offstate.png"/>
+			<icon-definition name="shutter0" uri="../images/sunshade_open.png"/>
+			<icon-definition name="shutter100" uri="../images/sunshade_closed.png"/>
+			<icon-definition name="up" uri="../images/Up.png"/>
+			<icon-definition name="down" uri="../images/down.png"/>
+			<icon-definition name="cpu" uri="../images/cpu.png"/>
+			<icon-definition name="ram" uri="../images/ram.png"/>
+			<icon-definition name="swtch" uri="../images/light-switch.png"/>
+			<icon-definition name="open" uri="../images/open.png"/>
+			<icon-definition name="closed" uri="../images/closed.png"/>
+			<icon-definition name="armed" uri="../images/armed.png"/>
+			<icon-definition name="unarmed" uri="../images/unarmed.png"/>
+			<icon-definition name="openl" uri="../images/openlong.png"/>
+			<icon-definition name="closedl" uri="../images/closedlong.png"/>
+		</icons>
+		
+	<mappings>
+		<!-- in the mapping section item values are translated to strings or value dependent icons -->
+			<mapping name="OnOffSymbol">
+				<entry value="0">
+					<icon name="off"/>
+				</entry>
+				<entry value="1">
+					<icon name="on"/>
+				</entry>
+			</mapping>
+			
+			<mapping name="OpenCloseSw">
+				<entry value="0">
+					<icon name="open"/>
+				</entry>
+				<entry value="1">
+					<icon name="closed"/>
+				</entry>
+			</mapping>
+			
+			<mapping name="OpenCloseSwLong">
+				<entry value="0">
+					<icon name="openl"/>
+				</entry>
+				<entry value="1">
+					<icon name="closedl"/>
+				</entry>
+			</mapping>
+			
+			<mapping name="Arm">
+				<entry value="0">
+					<icon name="unarmed"/>
+				</entry>
+				<entry value="1">
+					<icon name="armed"/>
+				</entry>
+			</mapping>
+			
+			<mapping name="socket">
+				<entry value="0">
+					<icon name="socket"/>
+				</entry>
+				<entry value="1">
+					<icon name="socket"/>
+				</entry>
+			</mapping>
+			
+			<mapping name="shield">
+				<entry value="0">
+					<icon name="shield"/>
+				</entry>
+				<entry value="1">
+					<icon name="shield3"/>
+				</entry>
+			</mapping>
+			
+			<mapping name="switch">
+				<entry value="0">
+					<icon name="swtch"/>
+				</entry>
+				<entry value="1">
+					<icon name="swtch"/>
+				</entry>
+			</mapping>
+			
+			<mapping name="OpenClose">
+				<entry value="Uninitialized">
+				<icon name="shutter100"/>
+				</entry>
+				<entry value="1">
+				<icon name="shutter100"/>
+				</entry>
+				<entry value="0">
+				<icon name="shutter0"/>
+				</entry>
+			</mapping>
+			
+			<mapping name="Siren">
+				<entry value="ON">
+				<icon name="siren-on"/>
+				</entry>
+				<entry value="OFF">
+				<icon name="siren"/>
+				</entry>
+			</mapping>
+			
+			<mapping name="alarm">
+				<entry value="ON">
+				<icon name="alerton"/>
+				</entry>
+				<entry value="OFF">
+				<icon name="alertoff"/>
+				</entry>
+			</mapping>
+	
+	</mappings>
+	
+	<stylings>
+	<styling name="Blue">
+	<entry range_min="0" range_max="100">blue</entry>
+	</styling>
+	</stylings>
+		
+	<plugins>
+		<!-- this section defines the required plugins -->
+			<!-- strftime provides formated date and time strings -->
+			<plugin name="strftime"/>
+			<plugin name="colorchooser"/>
+			<!-- timeout enables an automatic reload of webpages -->
+			<plugin name="timeout"/>
+		</plugins>
+	</meta>
+	
+	<!-- the navbar is the top row navigation bar -->
+		
+	<page name="HOME" showtopnavigation="false">
+	<web src="http://192.168.188.39:8080/charts/rank.html?max=15;wmax=18;gmax=20;prod=prod;cons=cons;c=consw;h=consg"  width="100%" height="190px">
+				<layout colspan="12"/>
+	</web>
+	<group name="">
+		<layout colspan="12" />
+		<group name="Electricity Consumption">
+		<layout colspan="4" />
+		<line/>
+		<line/>
+		<web src="http://192.168.188.39:8080/charts/electricity_home.html?cons=PowerT1;prod=PowerT2;a=kwh;p=2D"  width="100%" height="353px">
+				<layout colspan="4"/>
+			</web>
+		<line/>
+		</group>
+		
+		
+		<group name="Temperature &amp; Humidity">
+		<layout colspan="4" />
+		<line/>
+		<line/>
+		<image src="http://192.168.188.39:8080/images/temperature2.png" align="right" width="24px" height="49px" refresh="300"><layout colspan="0.4" /></image>
+		<info align="left" format="%.1f °C" styling="Blue">
+				<layout colspan="1.2" />
+					  <address transform="OH:number">SmartTemperature</address>
+		</info>
+		<text align="left">
+		<layout colspan="0.8" />
+		<label></label>
+		</text>	
+		<image src="http://192.168.188.39:8080/images/huminity.png" align="right" width="47px" height="45px" refresh="300"><layout colspan="0.4" /></image>
+		<info align="left" format="%.1f %" styling="Blue">
+				<layout colspan="1.2" />
+					  <address transform="OH:number">SmartHumidity</address>
+		</info>
+		<line/>
+		<group name="Alarm">
+			 <layout colspan="4" />
+		</group>
+		<line/>
+		<line/>
+				
+		<info mapping="Siren" align="left">
+			<layout colspan="0.5"/>
+			<label/>
+			<address transform="OH:string" mode="readwrite">Alarm</address>
+			</info>	 
+		<text align="left">
+		<layout colspan="2" />
+		<label>Alert-Status</label>
+		</text>	
+		<info align="right" mapping="alarm">
+		<layout colspan="1.4" />
+				  <address transform="OH:string">Alarm</address>
+		</info>
+		
+		<info mapping="shield" align="left">
+			<layout colspan="0.5"/>
+			<label/>
+			<address transform="OH:switch" mode="readwrite">AlarmSwitch</address>
+			</info>
+		<text align="left">
+					<layout colspan="2" />
+					<label>Alarmsystem</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="Arm"  align="right">
+					<layout colspan="1.4" />
+					<address transform="OH:switch">AlarmSwitch</address>
+				</switch>
+		<line/>
+		<web src="http://192.168.188.39:8080/charts/ini.html?item=StatusMessage"  width="100%" height="0px">
+				<layout colspan="4"/>
+			</web>
+		</group>
+		
+		<group name='Sun Shades'>
+		<layout colspan="4" />
+		<line/>
+		<line/>
+			<info mapping="OpenClose" align="left">
+			<layout colspan="0.5"/>
+			<label/>
+			<address transform="OH:switch" mode="readwrite">KNX1</address>
+			</info>
+			<text align="left">
+						<layout colspan="1.4" />
+						<label>Kitchen</label>
+					</text>
+					<switch on_value="1" off_value="0" mapping="OpenCloseSwLong"  align="right">
+						<layout colspan="2" />
+						<address transform="OH:switch">KNX1</address>
+					</switch>
+					
+			<info mapping="OpenClose" align="left">
+			<layout colspan="0.5"/>
+			<label/>
+			<address transform="OH:switch" mode="readwrite">KNX2</address>
+			</info>		
+			<text align="left">
+						<layout colspan="1.4" />
+						<label>Living Room</label>
+					</text>
+					<switch on_value="1" off_value="0" mapping="OpenCloseSwLong"  align="right">
+						<layout colspan="2" />
+						<address transform="OH:switch">KNX2</address>
+					</switch>
+					
+			<info mapping="OpenClose" align="left">
+			<layout colspan="0.5"/>
+			<label/>
+			<address transform="OH:switch" mode="readwrite">KNX3</address>
+			</info>
+			<text align="left">
+						<layout colspan="1.4" />
+						<label>Bathroom</label>
+					</text>
+					<switch on_value="1" off_value="0" mapping="OpenCloseSwLong"  align="right">
+						<layout colspan="2" />
+						<address transform="OH:switch">KNX3</address>
+				</switch>
+				<line/>
+		</group>
+		</group>
+		
+		
+	<!-- main page -->
+			
+			
+		<navbar position="bottom" dynamic="true" scope="1">
+		  <pagejump target="SETTINGS" align="center">
+			<layout colspan="1"/>
+			<label><icon name="setting"/>SETTINGS</label>
+		  </pagejump>
+		  <pagejump target="DEVICES" align="center">
+				<layout colspan="1"/>
+				<label><icon name="devices"/>DEVICES</label>
+		  </pagejump>
+		   <pagejump target="SERVICE" align="center">
+				<layout colspan="1"/>
+				<label><icon name="info"/>SERVICE</label>
+		  </pagejump>
+		  <pagejump target="HOME" align="center">
+				<layout colspan="1"/>
+				<label><icon name="home"/>HOME</label>
+		  </pagejump>
+		  <pagejump target="COSTS" align="center">
+				<layout colspan="1"/>
+				<label><icon name="cost"/>COSTS</label>
+		  </pagejump>
+		  <pagejump target="ELECTRICITY" align="center">
+				<layout colspan="1"/>
+				<label><icon name="electricity"/>ENERGY</label>
+		  </pagejump>
+		  <pagejump target="WATER" align="center">
+				<layout colspan="1"/>
+				<label><icon name="gas"/>WATER</label>
+		  </pagejump>
+		</navbar>
+		
+		<page name="SETTINGS"  visible="false" shownavbar-bottom="true">
+		<group>
+		<layout colspan="12"/>
+		<group name="Setting Form">
+		<layout colspan="6"/>
+		<line/>
+		<line/>
+		<web src="www.seznam.cz"  width="100%" height="700px">
+				<layout colspan="6"/>
+		</web>
+		<line/>
+		</group>
+		
+		<group  name="Memory &amp; CPU">
+		<layout colspan="6"/>
+		<line/>
+		<line/>
+	
+		<text align="left">
+				<layout colspan="1.8" />
+				<label><icon name="ram" />Used Mem.</label>
+			</text>
+			<info align="right" format="%.1f %">
+				<layout colspan="1.1" />
+					  <address transform="OH:number">MemUsedP</address>
+			</info>
+
+			<text align="center">
+					<layout colspan="0.2" />
+				</text>
+			
+			<text align="left">
+				<layout colspan="1.6" />
+				<label><icon name="cpu" />CPU Load</label>
+			</text>
+			<info align="right" format="%.1f %">
+				<layout colspan="1.3" />
+					  <address transform="OH:number">CpuUsedRasp</address>
+			</info>
+		</group>
+		<group  name="Network">
+		<layout colspan="6"/>
+		<line/>
+		<line/>
+
+		<text align="left">
+				<layout colspan="1.7" />
+				<label><icon name="up" />Tx Bytes</label>
+			</text>
+			<info align="right" format="%.1f MB">
+				<layout colspan="1.2" />
+					  <address transform="OH:number">Tx</address>
+			</info>
+			
+			<text align="center">
+					<layout colspan="0.2" />
+				</text>
+			
+		<text align="left">
+				<layout colspan="1.6" />
+				<label><icon name="up" />Sending</label>
+			</text>
+			<info align="right" format="%.1f kB/s">
+				<layout colspan="1.3" />
+					  <address transform="OH:number">Tx_s</address>
+			</info>
+		
+		<text align="left">
+				<layout colspan="1.6" />
+				<label><icon name="down" />Rx Bytes</label>
+			</text>
+			<info align="right" format="%.1f MB">
+				<layout colspan="1.3" />
+					  <address transform="OH:number">Rx</address>
+			</info>
+			
+			<text align="center">
+					<layout colspan="0.2" />
+				</text>
+		
+		<text align="left">
+				<layout colspan="1.6" />
+				<label><icon name="down" />Receiving</label>
+			</text>
+			<info align="right" format="%.1f kB/s">
+				<layout colspan="1.3" />
+					  <address transform="OH:number">Rx_s</address>
+			</info>
+		
+			<text align="left">
+				<layout colspan="1.8" />
+				<label><icon name="up" />Tx Errors</label>
+			</text>
+			<info align="right" format="%.1f MB">
+				<layout colspan="1.1" />
+					  <address transform="OH:number">Tx_e</address>
+			</info>
+			
+			<text align="center">
+					<layout colspan="0.2" />
+				</text>
+		
+		<text align="left">
+				<layout colspan="1.8" />
+				<label><icon name="up" />Tx Dropped</label>
+			</text>
+			<info align="right" format="%.1f MB">
+				<layout colspan="1.1" />
+					  <address transform="OH:number">Tx_d</address>
+			</info>
+		
+		<text align="left">
+				<layout colspan="1.8" />
+				<label><icon name="down" />Rx Errors</label>
+			</text>
+			<info align="right" format="%.1f MB">
+				<layout colspan="1.1" />
+					  <address transform="OH:number">Rx_e</address>
+			</info>
+			
+			<text align="center">
+					<layout colspan="0.2" />
+				</text>
+		
+		<text align="left">
+				<layout colspan="1.8" />
+				<label><icon name="down" />Rx Dropped</label>
+			</text>
+			<info align="right" format="%.1f MB">
+				<layout colspan="1.1" />
+					  <address transform="OH:number">Rx_d</address>
+			</info>
+			
+		<line/>
+		</group>
+		</group>
+			
+		</page>
+		<page name="DEVICES"  visible="false" shownavbar-bottom="true">
+		<group>
+		<layout colspan="12"/>
+		<group name="Hue Bulbs">
+		<layout colspan="6"/>
+		<line/>
+		<line/>
+		<image src="http://192.168.188.39:8080/images/left.png" width="14px" height="21px" refresh="300">
+		<layout colspan="0.15"/>
+		</image>
+		<text align="center">
+					<layout colspan="1.9" />
+					<label>Living Room</label>
+				</text>
+		
+		<text align="center">
+					<layout colspan="1.9" />
+					<label>Kitchen</label>
+				</text>
+				
+		<text align="center">
+					<layout colspan="1.8" />
+					<label>Bathroom</label>
+				</text>
+				
+		<image src="http://192.168.188.39:8080/images/right.png" width="14px" height="21px" refresh="300">
+		<layout colspan="0.15"/>
+		</image>
+		
+		<text align="center">
+					<layout colspan="0.15" />
+				</text>
+		
+		<web src="http://192.168.188.39:8080/charts/pokus.html?item=Color_Hue_1"  width="100%" height="487px">
+				<layout colspan="1.9"/>
+		</web>
+		
+		<web src="http://192.168.188.39:8080/charts/pokus.html?item=Color_Hue_2"  width="100%" height="487px">
+				<layout colspan="1.9"/>
+		</web>
+		<web src="http://192.168.188.39:8080/charts/pokus.html?item=Color_Hue_3"  width="100%" height="487px">
+				<layout colspan="1.9"/>
+		</web>
+		<text align="center">
+					<layout colspan="0.15" />
+				</text>
+		<line/>	
+		</group>
+		
+			
+		<group name="Sun Shades &amp; Switches">
+		<layout colspan="6" />
+		<line/>
+		<line/>
+		<info mapping="OpenClose" styling="GreyGreen" align="left">
+		<layout colspan="0.4"/>
+		<label/>
+		<address transform="OH:switch" mode="readwrite">KNX1</address>
+		</info>
+		<text align="left">
+					<layout colspan="1.3" />
+					<label>Kitchen</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="OpenCloseSw"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">KNX1</address>
+				</switch>
+				
+		<text align="center">
+					<layout colspan="0.2" />
+				</text>
+		
+		<info mapping="switch" styling="GreyGreen" align="left">
+		<layout colspan="0.4"/>
+		<label/>
+		<address transform="OH:switch" mode="readwrite">KNX4</address>
+		</info>
+		<text align="left">
+					<layout colspan="1.3" />
+					<label>Light-Switch<br /> One</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="OnOffSymbol"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">KNX4</address>
+				</switch>
+				
+		<info mapping="OpenClose" styling="GreyGreen" align="left">
+		<layout colspan="0.4"/>
+		<label/>
+		<address transform="OH:switch" mode="readwrite">KNX2</address>
+		</info>
+		<text align="left">
+					<layout colspan="1.3" />
+					<label>Living Room</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="OpenCloseSw"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">KNX2</address>
+				</switch>
+				
+		<text align="center">
+					<layout colspan="0.2" />
+				</text>
+		
+		<info mapping="switch" styling="GreyGreen" align="left">
+		<layout colspan="0.4"/>
+		<label/>
+		<address transform="OH:switch" mode="readwrite">KNX5</address>
+		</info>
+		<text align="left">
+					<layout colspan="1.3" />
+					<label>Other Name</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="OnOffSymbol"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">KNX5</address>
+				</switch>
+				
+		<info mapping="OpenClose" styling="GreyGreen" align="left">
+		<layout colspan="0.4"/>
+		<label/>
+		<address transform="OH:switch" mode="readwrite">KNX3</address>
+		</info>
+		<text align="left">
+					<layout colspan="1.3" />
+					<label>Bathroom</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="OpenCloseSw"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">KNX3</address>
+				</switch>
+				
+		<text align="center">
+					<layout colspan="0.2" />
+				</text>		
+		
+		<info mapping="switch" styling="GreyGreen" align="left">
+		<layout colspan="0.4"/>
+		<label/>
+		<address transform="OH:switch" mode="readwrite">KNX6</address>
+		</info>
+		<text align="left">
+					<layout colspan="1.3" />
+					<label>Light-Switch</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="OnOffSymbol"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">KNX6</address>
+				</switch>
+				
+		<info mapping="socket" styling="GreyGreen" align="left">
+		<layout colspan="0.4"/>
+		<label/>
+		<address transform="OH:switch" mode="readwrite">KNX7</address>
+		</info>
+		<text align="left">
+					<layout colspan="1.3" />
+					<label>Power-Plug Name 2</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="OnOffSymbol"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">KNX7</address>
+				</switch>
+				
+		<text align="center">
+					<layout colspan="0.2" />
+				</text>		
+		
+		
+		<info mapping="socket" styling="GreyGreen" align="left">
+		<layout colspan="0.4"/>
+		<label/>
+		<address transform="OH:switch" mode="readwrite">KNX8</address>
+		</info>
+		<text align="left">
+					<layout colspan="1.3" />
+					<label>Power-Plug</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="OnOffSymbol"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">KNX8</address>
+				</switch>
+		
+		<info mapping="socket" styling="GreyGreen" align="left">
+		<layout colspan="0.4"/>
+		<label/>
+		<address transform="OH:switch" mode="readwrite">KNX9</address>
+		</info>
+		<text align="left">
+					<layout colspan="1.3" />
+					<label>Power-Plug Name 1</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="OnOffSymbol"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">KNX9</address>
+				</switch>
+				
+				
+		<text align="center">
+					<layout colspan="0.2" />
+				</text>		
+		
+		<info mapping="socket" styling="GreyGreen" align="left">
+		<layout colspan="0.4"/>
+		<label/>
+		<address transform="OH:switch" mode="readwrite">KNX10</address>
+		</info>
+		<text align="left">
+					<layout colspan="1.3" />
+					<label>Power-Plug</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="OnOffSymbol"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">KNX10</address>
+				</switch>
+		<line/>
+		</group>
+		
+		<group name="Alarms">
+		<layout colspan="6"/>
+		<line/>
+		<line/>
+		<!--<text align="left">
+					<layout colspan="1.5" />
+					<label>Alert</label>
+				</text>
+		<info align="left">
+		<layout colspan="1.5" />
+				  <address transform="OH:string">Alarm</address>
+		</info>!-->
+		<info mapping="Siren" align="left">
+			<layout colspan="0.5"/>
+			<label/>
+			<address transform="OH:string" mode="readwrite">Alarm</address>
+			</info>	 
+		<text align="left">
+		<layout colspan="1.1" />
+		<label>Alert-Status</label>
+		</text>	
+		<info align="right" mapping="alarm">
+		<layout colspan="1.1" />
+				  <address transform="OH:string">Alarm</address>
+		</info>
+		
+		<text align="center">
+					<layout colspan="0.2" />
+				</text>	
+				
+		<info mapping="shield" align="left">
+			<layout colspan="0.5"/>
+			<label/>
+			<address transform="OH:switch" mode="readwrite">AlarmSwitch</address>
+			</info>
+		<text align="left">
+					<layout colspan="1.4" />
+					<label>Alarmsystem</label>
+				</text>
+				<switch on_value="1" off_value="0" mapping="Arm"  align="right">
+					<layout colspan="1.2" />
+					<address transform="OH:switch">AlarmSwitch</address>
+				</switch>
+		<line/>
+		<web src="http://192.168.188.39:8080/charts/ini_dev.html?item=StatusMessage"  width="100%" height="0px">
+				<layout colspan="6"/>
+		</web>
+
+		</group>
+		</group>
+		
+		</page>
+		<page name="ELECTRICITY"  visible="false" shownavbar-bottom="true">
+
+			<web src="http://192.168.188.39:8080/charts/rank.html?max=15;wmax=18;gmax=20;prod=prod;cons=cons;c=consw;h=consg"  width="100%" height="190px">
+				<layout colspan="12"/>
+			</web> 
+			<web src="http://192.168.188.39:8080/charts/electricity.html?item=PowerT1;a=kWh;p=2D"  width="100%" height="410px">
+				<layout colspan="12"/>
+			</web>
+		</page>
+		<page name="WATER"  visible="false" shownavbar-bottom="true">
+		<web src="http://192.168.188.39:8080/charts/rank.html?max=15;wmax=18;gmax=20;prod=prod;cons=cons;c=consw;h=consg"  width="100%" height="190px">
+				<layout colspan="12"/>
+			</web> 
+			<web src="http://192.168.188.39:8080/charts/water.html?cold=WaterC;hot=WaterH;a=L/h;p=2D"  width="100%" height="410px">
+				<layout colspan="12"/>
+			</web>
+		</page>
+		<page name="SERVICE"  visible="false" shownavbar-bottom="true">
+		<web src="http://192.168.188.39:8080/charts/rank.html?max=15;wmax=18;gmax=20;prod=prod;cons=cons;c=consw;h=consg"  width="100%" height="190px">
+				<layout colspan="12"/>
+			</web> 
+		</page>
+		<page name="COSTS"  visible="false" shownavbar-bottom="true">
+		<web src="http://192.168.188.39:8080/charts/rank.html?max=15;wmax=18;gmax=20;prod=prod;cons=cons;c=consw;h=consg"  width="100%" height="190px">
+				<layout colspan="12"/>
+			</web> 
+		</page>
+	</page>
+</pages>

@@ -1,0 +1,135 @@
+<html>
+  <head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="home.css">
+        <title>Electricity Consumption</title>
+  </head>
+  <body>
+  <div id="wrapch">
+    <div id="chart_div"></div>
+</div>
+
+  </body>
+  	<script src="js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+	var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=');
+        if (p.length != 2) continue;
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+	})(window.location.search.substr(1).split(';'));
+	
+	var items = new Array();
+	items.push(qs["cons"]);
+	items.push(qs["prod"]);
+	var axis = qs["a"];
+	var period = qs["p"];
+	var url = new Array();
+	var time = new Array();
+	var cons = new Array();
+	var prod = new Array();
+
+	
+		function requestchart()
+		{
+			for (var y = 0; y < items.length; y++)
+			{
+				var chdata = new Array();
+				time = [];
+				prod = [];
+				var request = $.ajax({type  : "GET", dataType: "json", async: false, url : location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items[y] + "&func=last&step=1&period=2Y"});
+					request.done( function(data) 
+						{ 
+
+							 for (var i = 717; i < data.length - 1; i++) 
+							{
+								chdata.push(Number (data[i].value)).toFixed(2);
+								time.push(new Date (Number (data[i].time) * 1000));
+							}
+						});
+					request.fail( function()
+					{
+						console.log("Error");
+					});
+						
+				if (y == 0) 
+				{
+					var request = $.ajax({type  : "GET", dataType: "json", async: false, url : location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + items[y] + "&period=last"});
+						request.done( function(data) 
+							{ 
+							 chdata.push(Number (data[0].value)).toFixed(2);
+							 time.push(new Date (Number (data[0].time) * 1000));
+							});
+						request.fail( function()
+						{
+							console.log("Error");
+						});
+					cons = chdata;
+				}
+				if (y == 1) prod = chdata;
+				}
+		}
+	
+	google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawChart); 
+	
+
+	function drawChart() 
+	{
+		var electricity = new Array();
+		requestchart();
+		var form = "";
+		electricity = [];	
+		for (c = 0; c < cons.length - 1 ; c++)
+			{
+				electricity[c] = cons[c];
+			}	
+		data = new google.visualization.DataTable();
+
+			
+		
+			data.addColumn ( 'string', 'Day');
+			data.addColumn ( 'number', 'WEEK AGO');
+			data.addColumn({type: 'string', role: 'annotation'});
+			data.addColumn ( 'number', 'THIS WEEK');
+			data.addColumn({type: 'string', role: 'annotation'});			
+			var days= ["SUN", "MON","TUE","WED","THU","FRI","SAT"];
+			for (c = 0; c < electricity.length/2; c++) 
+					{
+						legn = "";
+						lega = "";
+						if (isNaN(electricity[c])) legn = "N";
+						else legn = "";
+						if (isNaN(electricity[c + electricity.length/2])) lega = "N";
+						else lega = "";
+						data.addRow ([days[time[c].getDay()], electricity[c] - (prod[c]-20), legn, electricity[c + electricity.length/2] - (prod[c + electricity.length/2]-20), lega]);  
+					};
+			var formatter = new google.visualization.NumberFormat({fractionDigits: 3});
+			formatter.format(data, 1);
+			formatter.format(data, 3);
+			form = 'dd. MM.';
+			color = new Array('#B4B4B4', '#F65713');
+
+		var options = {
+			  chartArea: {left: 50, top: 40, width: "100%", height: "78%"},
+			  legend: {position: 'top', alignment: 'end', textStyle: {fontSize: 16, fontName: "Titillium-regular"}},
+			  backgroundColor: { fill:'transparent'},
+			  vAxis: {minValue: 0, title: axis, titleTextStyle: {italic: false}, baselineColor: '#F6B1A1', gridlines: {color: '#F6B1A1'}, textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+			  hAxis: {format: form, gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+			  colors: color,};	
+		
+			var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+			chart.draw (data, options);
+			setTimeout("drawChart()", 1000 * 60 * 5);
+	}
+
+
+	window.addEventListener('resize', drawChart);	
+    </script>
+</html>

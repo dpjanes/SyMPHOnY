@@ -1,0 +1,46 @@
+﻿ google.load("visualization", "1", {packages:["corechart"]});
+     google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+         data.addColumn ( 'number', '');
+		 data.addColumn ( 'number', 'Systém');
+		 data.addColumn ( 'number', 'Uživatel');
+		 data.addColumn ( 'number', 'Celkem');
+		console.log( "Success: Status=" + i);
+		var request = $.ajax
+        ({
+                type	: "GET",
+				async	: false,
+                url		: url
+        });
+
+		request.done( function(data) 
+			{ 
+					
+						cpu = data.split('|').map(Number);
+						i = cpu.length;
+			});
+		var p = 0;
+		 for (var c=0; c<=i; c++)
+		 {
+			data.addRow ([p, cpu[c++], cpu[c++], cpu[c]]);
+			p++;
+		 }
+        var options = {
+		  chartArea: {left: 40, top: 7, width: "95%", height: "85%"},
+          hAxis: { minValue: 0, maxValue: 60, textStyle: {color: 'white'}, direction: 1, gridlines: {count: 7}, baselineColor: 'lightgrey'},
+          vAxis: {minValue: 0, maxValue: 100, axisTitlesPosition: 'none', gridlines: {count: 11}, minorGridlines: {count: 1}},
+		  legend: {position: 'bottom', aligment: 'center'},
+		  colors: ['#0c7926', '#70bf44', '#b6ef77'],
+        };
+        var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+        chart.draw(data, options);
+		setTimeout("drawChart()", 1000);
+      } 
+    </script>
+  </head>
+  <body>
+  <p style="text-align:center;font-family:Arial; font-size:30px; margin:5">Využití procesoru</p>
+    <div id="chart_div" style="width: 100%; height: 95%;"></div>
+  </body>
+</html>

@@ -1,0 +1,198 @@
+<html>
+<head><meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="style_rank.css">
+</head>
+ <body id="body">
+   <span id="wrap">
+  <div class="chart"><p id="date"></p></div>
+  <div class="image"><img src="button_cup.png"/></div><div class="rank"><p id="rank">Photovoltaic ranking Tirol:</br>You are <b>No 52. </b>of 368!</p></div>
+  <div class="imagerank"><img src="rank.png"  width="18" height="18"/></div>
+  <div class="chart" id="divsee"><a href="https://google.com" id="seerank"  target="Ranking">See Ranking</a></div>
+</span>
+
+<span id="wrapch">
+  <div class="title"><p class="h1title">Current Electricity<br/>Balance</p></div>
+  <div id="text_l"><p id="con"></p><p id="pro"></p><p id="def"></p></div>
+  <div id="donutchart" class="chart"></div>
+  <div id="donutchart2" class="chart"></div>
+  <div class="imageleg"><img src="leg.png"/></div><div class="chart"><p class="leg">Consumption</br>Production</p></div>
+  </span> 
+  
+<span id="wrapch">
+  <div class="title" id="title2"><p class="h1title" id="watergas"></p></div>
+  <div id="text_p"><p class="right" id="gwvalue"></p></div>
+  <div id="donutchart3" class="chart"></div>
+  </body>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script src="js/date-en-GB.js"></script>
+  <script src="js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+document.getElementById("donutchart").style.position = "absolute";
+document.getElementById("donutchart2").style.position = "absolute";
+var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=');
+        if (p.length != 2) continue;
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+	})(window.location.search.substr(1).split(';'));
+	
+	var max = Number(qs["max"]);
+	var maxw = Number(qs["wmax"]);
+	var maxg = Number(qs["gmax"]);
+	var value = new Array();
+	var url = new Array();
+	var wg = 0;
+	var monthNames = [ "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December" ];
+	
+	function request()
+ 	{
+			url[0] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/"+ qs["prod"] + "/state";
+			url[1] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/"+ qs["cons"] + "/state";
+			url[2] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/"+ qs["c"] + "/state";
+			url[3] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/"+ qs["h"] + "/state";
+		for (var i = 0; i < 4; i++)
+		{
+			var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[i]});
+			request.done( function(data) 
+				{ 
+				  value[i] = Number(data);
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+		}
+	}
+	
+  google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+	    request();
+		var diff;
+		if (value[0] < value[1]) 
+		{
+			diff = (value[1] - value[0]);
+			document.getElementById("def").innerHTML = (value[0] - value[1]).toFixed(2).toString().replace(/\./g, ',') + " kW";
+			document.getElementById("def").style.color = "#E46A55";
+		}
+		else 
+		{
+			diff = 0;
+			document.getElementById("def").innerHTML = "+"+(value[0] - value[1]).toFixed(2).toString().replace(/\./g, ',') + " kW";
+			document.getElementById("def").style.color = "#8BAD01";
+		}
+		
+        var data = google.visualization.arrayToDataTable([
+          ['Name', 'Value'],
+          ['Výroba',     value[0]],
+          ['Rozdíl',      diff],
+		  ['Navíc',      (max - (value[0] + diff))],
+		  ['Hide',      max],
+
+        ]);
+		
+		var data2 = google.visualization.arrayToDataTable([
+          ['Name', 'Value'],
+          ['Consumption',    value[1]],
+          ['Fill',      (max - value[1])],
+		  ['Hide',      max],
+        ]);
+		document.getElementById("pro").innerHTML = value[0].toFixed(2).toString().replace(/\./g, ',') + " kW";
+		document.getElementById("con").innerHTML = value[1].toFixed(1).toString().replace(/\./g, ',') + " kW";
+		
+		var date = new Date();
+		document.getElementById("date").innerHTML = (new Date()).toString("MMMM dd | hh:mm tt"); 
+		
+		if (wg == 0)
+		{	
+			wg++;	
+		  var data3 = google.visualization.arrayToDataTable([
+          ['Name', 'Value'],
+          ['Consumption',    value[2]],
+          ['Fill',      (maxw - value[2])],
+		  ['Hide',      maxw],
+         ]);
+			document.getElementById("watergas").innerHTML = "Current Cold Water<br/>Consumption";
+			document.getElementById("gwvalue").innerHTML = value[2].toFixed(2).toString().replace(/\./g, ',') + " m³ / h";
+			document.getElementById("text_p").style.width = "81%";
+		}
+		else 
+		{
+			wg = 0;
+			var data3 = google.visualization.arrayToDataTable([
+			  ['Name', 'Value'],
+			  ['Consumption',    value[3]],
+			  ['Fill',      (maxg - value[3])],
+			  ['Hide',      maxg],
+			 ]);
+			document.getElementById("watergas").innerHTML = "Current Hot Water<br/>Consumption";
+			document.getElementById("gwvalue").innerHTML = value[3].toFixed(2).toString().replace(/\./g, ',') + " m³ / h";
+			document.getElementById("text_p").style.width = "81%";
+		}
+        var options = {
+          pieHole: 0.8,
+		   pieStartAngle: 270,
+		   backgroundColor: { fill:'transparent' },
+		   pieSliceText: "none",
+		   legend: {position: "none"},
+		   pieSliceBorderColor: "transparent",
+		   tooltip: {trigger: "none"},
+		   chartArea:{left: "35%",top: 25,width: "400px",height: "400px"},
+		   slices: {
+		   0: { color: '#8BAD01'},
+		   1: { color: '#E46A55'},
+		   2: { color: 'transparent'},
+		   3: { color: 'transparent'},}
+        };
+		
+		var options2 = {
+          pieHole: 0.9,
+		   pieStartAngle: 270,
+		   backgroundColor: { fill:'transparent' },
+		   pieSliceText: "none",
+		   legend: {position: "none"},
+		   chartArea:{left: "35%",top: 25,width: "400px",height: "400px"},
+		   pieSliceBorderColor: "transparent",
+		   tooltip: {trigger: "none"},
+		   slices: {
+		   0: { color: '#FFFFFD'},
+		   1: { color: '#7A7F83'},
+		   2: { color: 'transparent'},}
+		   };
+		   
+		var options3 = {
+          pieHole: 0.9,
+		   pieStartAngle: 270,
+		   backgroundColor: { fill:'transparent' },
+		   pieSliceText: "none",
+		   legend: {position: "none"},
+		   chartArea:{left: "35%",top: 25,width: "400px",height: "400px"},
+		   pieSliceBorderColor: "transparent",
+		   tooltip: {trigger: "none"},
+		   slices: {
+		   0: { color: '#FFFFFD'},
+		   1: { color: '#7A7F83'},
+		   2: { color: 'transparent'},}
+		   };
+
+        var chart = new google.visualization.PieChart(document.getElementById('donutchart'));
+		var chart2 = new google.visualization.PieChart(document.getElementById('donutchart2'));
+		var chart3 = new google.visualization.PieChart(document.getElementById('donutchart3'));
+				
+		chart.draw(data, options);
+		chart2.draw(data2, options2);
+		chart3.draw(data3, options3);
+		
+		
+		setTimeout("drawChart()", 30000);
+	}
+	window.addEventListener('resize', drawChart);
+    </script>
+
+</html>

@@ -1,0 +1,111 @@
+sitemap demo label="SyMPHOnY"
+{
+	Frame label="Date & Time" {
+		Text item=Date
+		Text item=Time
+	}
+	Frame label="Smart House"{
+		Group item=Hue label="Lightning system" icon="bulb"
+		Text item=AlarmHandler{
+			//Switch item=EnableSwitch
+			Text item=AlarmMessage
+			Text item=Alarm
+			Switch item=AlarmARM mappings=[ON="OK"] visibility=[StatusMessage=="UNARMED"]
+			Switch item=AlarmUNARM mappings=[ON="OK"] visibility=[StatusMessage=="ARMED",StatusMessage=="ALARM"]
+			Text item=AlarmSTATUS1 visibility=[StatusMessage=="WORKING1"]
+			Text item=AlarmSTATUS2 visibility=[StatusMessage=="WORKING2"]
+			}
+		Text label="Smart Metering" icon="smartmeter"{
+			Text label="Electricity" icon="energy2"{
+				Text item=SerialE
+				Text item=TypeE
+				Text item=PowerT1 {
+					Frame {
+						Text item=PowerT1
+					}
+					Frame {
+						Chart item=PowerT1_Chart period=h refresh=10000
+					}
+				}
+				Text item=PowerT2 {
+					Frame {
+						Text item=PowerT2
+					}
+					Frame {
+						Chart item=PowerT2_Chart period=h refresh=10000
+					}
+				}
+			}
+			Text label="PV Set" icon="energy2"{
+				Text item=SerialP
+				Text item=TypeP
+				Text item=PowerP {
+					Frame {
+						Text item=PowerP
+					}
+					Frame {
+						Chart item=Power_Chart period=h refresh=10000
+					}
+				}
+			}
+			Text label="Water" icon="water"{
+				Text item=SerialW
+				Text item=TypeW
+				Text item=WaterC {
+					Frame {
+						Text item=WaterC
+					}
+					Frame {
+						Chart item=WaterC_Chart period=h refresh=10000
+					}
+				}
+				Text item=WaterH {
+					Frame {
+						Text item=WaterH
+					}
+					Frame {
+						Chart item=WaterH_Chart period=h refresh=10000
+					}
+				}
+			}
+			Text label="Environment" icon="grass"{
+				Text item=SerialS
+				Text item=TypeS
+				Text item=SmartTemperature {
+					Frame {
+						Text item=SmartTemperature
+					}
+					Frame {
+						Chart item=SmartTemperature_Chart period=h refresh=10000
+					}
+				}
+				Text item=SmartHumidity {
+					Frame {
+						Text item=SmartHumidity
+					}
+					Frame {
+						Chart item=SmartHumidity_Chart period=h refresh=10000
+					}
+				}
+			}	
+		}
+		Text label="System informations" icon="router"{
+			Text item=MemUsed 
+			Text item=MemUsedP
+			Text item=CpuUsedRasp 
+			Text label="Network" icon="net"
+			{		
+				Text item=Tx
+				Text item=Rx
+				Text item=Tx_s
+				Text item=Rx_s
+				Text item=Tx_e
+				Text item=Rx_e
+				Text item=Tx_d
+				Text item=Rx_d
+			}
+			 
+		}
+		Group item=KNX label="KNX Board" icon="house"
+	}
+}

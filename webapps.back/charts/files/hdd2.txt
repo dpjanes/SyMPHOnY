@@ -1,0 +1,57 @@
+];
+	var pole = new Array();
+	var i = 0;
+	 google.load("visualization", "1", {packages:["corechart"]});
+     google.setOnLoadCallback(drawChart);
+      function drawChart() {
+	  for (i=0; i<4; i++)
+	  {
+		var request = $.ajax
+        ({
+                type       : "GET",
+				async	: 	false,
+                url        : url[i]
+        });
+        request.done( function(data) 
+        { 				
+				pole[i] = Number(data);
+        });
+	  }
+		var hdd = new google.visualization.arrayToDataTable([['Disk', 'GB'],['Využito', pole[0]],['Volné', pole[1]-pole[0]]]);
+		var swap = new google.visualization.arrayToDataTable([['Disk', 'GB'],['Využito', pole[2]],['Volné', pole[3]]]);
+        var options = {
+		  chartArea: {width: "80%", height: "80%"},
+		  title: "Systémový disk",
+		  titleTextStyle: {fontName: 'Arial', fontSize: 25, bold: false},
+		  pieHole: 0.4,
+		  legend: {position: 'labeled'},
+		  colors: ['#00A827', '#70bf44', '#b6ef77'],
+        };
+		var options2 = {
+		  chartArea: {width: "80%", height: "80%"},
+		  title: "Odkládací prostor",
+		  titleTextStyle: {fontName: 'Arial', fontSize: 25, bold: false},
+		  pieHole: 0.4,
+		  legend: {position: 'labeled'},
+		  colors: ['#00A827', '#70bf44', '#b6ef77'],
+        };
+        var chart1 = new google.visualization.PieChart(document.getElementById('donutchart'));
+		var chart2 = new google.visualization.PieChart(document.getElementById('donutchart2'));
+        chart1.draw(hdd, options);
+		chart2.draw(swap, options2);
+		setTimeout("drawChart()", 5000);
+      }	 
+    </script>
+	<style>
+		#wrap {overflow: auto;}
+		#donutchart {float: left; width: 50%; height: 95%; display: inline-block;}
+		#donutchart2 {float: right; width: 50%; height: 95%;display: inline-block;}
+	</style>
+  </head>
+  <body>
+  <div id="wrap">
+	<div  id="donutchart"></div>
+	<div  id="donutchart2"></div>
+ </div>
+  </body>
+</html>

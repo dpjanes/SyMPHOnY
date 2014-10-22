@@ -1,0 +1,216 @@
+@font-face {
+    font-family: "Titillium-normal";
+    font-style: normal;
+    font-weight: 400;
+    src: url("TitilliumWeb-Regular.ttf");
+	}
+	@font-face {
+    font-family: "Titillium-regular";
+    font-style: regular;
+    font-weight: 200;
+    src: url("TitilliumWeb-Regular.ttf");
+	}
+	#wrap
+	{
+		position: relative;
+		height: 180px;	
+		display: inline-block;
+		width: -moz-calc(100% - 848px);
+		width: -webkit-calc(100% - 848px);
+		margin-left: 20px;
+		
+	}
+	#wrapch
+	{
+		position: relative;
+		height: 180px;
+		display: inline-block;	
+		width: 405px;		
+	}
+	.chart
+	{
+		position: absolute;
+		width: 100%;
+		height: 400px;
+	}
+	.title
+	{
+		position: absolute;
+		margin-top: 11px;
+		margin-left: 25px;
+		width: 92%;
+		height: 84%;
+		border-color:#7A7F83;
+					 border-top-width:0px;
+					 border-left-width:0px;
+					 border-right-width:0px;
+					 border-bottom-width:1px;
+					 border-style:solid;
+	}
+	#text_l
+	{
+		position: absolute;
+		bottom: 22px;
+		width: 74%;
+		text-align: right;
+		height: 40%;
+		line-height: 22px;
+	}
+	#text_p
+	{
+		position: absolute;
+		bottom: 16px;
+		width: 77%;
+		text-align: right;
+		height: 40%;
+	}
+	.rank
+	{
+		position: absolute;
+		margin-top: 8px;
+		top: 30px;
+		width: 100%;
+		height: 40%;
+		border-color:#7A7F83;
+					 border-top-width:1px;
+					 border-left-width:0px;
+					 border-right-width:0px;
+					 border-bottom-width:0px;
+					 border-style:solid;
+	}
+	.image
+	{
+		position: absolute;
+		display:inline-block;
+		margin-top: 58px;
+	}
+	.imagerank
+	{
+		position: absolute;
+		display:inline-block;
+		margin-top: 120px;
+		margin-left: 80px;
+	}
+	#date
+	{
+		color: #a6a8aa;
+		margin-top: 9px;
+		font-size: 18px;
+		font-family: Titillium-normal;
+		-webkit-text-stroke-width: 0.25px;
+		-webkit-text-stroke-color: #a6a8aa;
+		-webkit-text-fill-color: #a6a8aa;
+		
+	}
+	#rank
+	{
+		color: #E5E5E3;
+		margin-top: 20px;
+		margin-left: 70px;
+		font-size: 22px;
+		line-height: 26px;
+		font-family: Titillium-normal;
+		-webkit-text-stroke-width: 0.25px;
+		-webkit-text-stroke-color: #E5E5E3;
+		-webkit-text-fill-color: #E5E5E3;
+	}
+	#body
+	{
+		overflow: hidden;
+		background-image: -webkit-gradient(
+		linear,
+		left top,
+		left bottom,
+		color-stop(0, #3B3B3B),
+		color-stop(0.05, #535A60),
+		color-stop(0.94, #535A60),
+		color-stop(1, #3D3D3D)
+		);
+		background-image: -o-linear-gradient(bottom, #3B3B3B 0%, #535A60 5%, #535A60 85%, #3D3D3D 100%);
+		background-image: -moz-linear-gradient(bottom, #3B3B3B 0%, #535A60 5%, #535A60 85%, #3D3D3D 100%);
+		background-image: -webkit-linear-gradient(bottom, #3B3B3B 0%, #535A60 5%, #535A60 85%, #3D3D3D 100%);
+		background-image: -ms-linear-gradient(bottom, #3B3B3B 0%, #535A60 5%, #535A60 85%, #3D3D3D 100%);
+		background-image: linear-gradient(to bottom, #3B3B3B 0%, #535A60 5%, #535A60 85%, #3D3D3D 100%);
+		padding-top: 5px;
+	}
+	.h1title
+	{
+	color: white;
+	margin: 0px;
+	font-size: 22px;
+		line-height: 26px;
+		font-family: Titillium-regular;
+		-webkit-text-stroke-width: 0.25px;
+		-webkit-text-stroke-color: white;
+		-webkit-text-fill-color: white;
+	}
+	#con
+	{
+	color: white;
+	margin: 0;
+	font-size: 20px;
+	font-family: Titillium-regular;
+	-webkit-text-stroke-width: 0.25px;
+		-webkit-text-stroke-color: white;
+		-webkit-text-fill-color: white;
+	}
+	#pro
+	{
+	color: #8BAD01;
+	margin: 0;
+	font-size: 20px;
+	font-family: Titillium-normal;
+	font-weight: bold;
+	}
+	#def
+	{
+	color: #E46A55;
+	margin: 0;
+	font-size: 20px;
+	font-family: Titillium-normal;
+	font-weight: bold;
+	}
+	.right
+	{
+	color: white;
+	margin-top: 5%;
+	font-size: 24px;
+	font-family: Titillium-normal;
+	font-weight: bold;
+	}
+	.imageleg
+	{
+		position: absolute;
+		display:inline-block;
+		margin-left: 25px;
+		margin-top: 100px;
+	}
+	.leg
+	{
+		color: #A6A7A9;
+		margin-left: 40px;
+		margin-top: 94px;
+		line-height: 21px;
+		font-family: Titillium-normal;
+		font-size: 15px;
+	}
+	#watergas
+	{
+		margin-left: -2px;
+	}
+	#title2
+	{
+		margin-left: 19px;
+	}
+	#seerank
+	{
+		font-size: 16px;
+		font-family: Titillium-normal;
+		color: #B6BABD;
+		text-decoration: none
+	}
+	#divsee
+	{
+		margin-top: 116px;
+		margin-left: 105px;
+	}

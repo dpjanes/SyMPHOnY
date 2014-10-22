@@ -1,0 +1,118 @@
+<html>
+  <head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+        <title>Electricity Consumption</title>
+		<style>
+		@font-face {
+			font-family: "Titillium-normal";
+			font-style: normal;
+			/*font-weight: 400;*/
+			src: url("TitilliumWeb-SemiBold.ttf");
+			}
+			body 
+			{
+				height: 10px;
+				background: rgba(255, 255, 255, 0.4);
+				margin: 0px;
+			}
+			div{
+				
+				color: black;
+				width: 100%;
+				text-align: center;
+				font-family: Titillium-normal;
+				font-size: 25px;
+				line-height: 32px;
+				padding: 0px;
+				height: 40px;
+				background: rgba(255, 255, 255, 0.9);
+				margin-top: 5px;
+			}
+			p
+			{
+				padding-top: 3px;
+			}
+		</style>
+  </head>
+  <body>
+	<div id="status"><p>INITIALIZING..</p></div>
+  </body>
+   <script src="js/jquery-2.1.0.min.js"></script>
+  <script src="js/jquery.atmosphere.js"></script>
+    <script type="text/javascript">
+	
+	var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=');
+        if (p.length != 2) continue;
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+	})(window.location.search.substr(1).split(';'));
+	var items = qs["item"];
+	var socket = $.atmosphere;
+	var output;
+	function init() {subscribe(location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/"+items); }
+	function subscribe(location) {
+	 
+                var request = { url : location,
+				    maxRequest : 256,
+					timeout: 59000,
+					attachHeadersAsQueryString : true,
+					executeCallbackBeforeReconnect : false,
+					transport: 'websocket',
+					fallbackTransport: 'streaming',
+                    headers:{'Accept': 'application/json'}};
+
+                request.onError = function (response) {
+					//console.log('------ ERROR -------');
+					//console.log(response);
+				}
+				request.onOpen = function(response) {
+					//console.log('-------- OPEN --------');
+					//console.log(response);
+					detectedTransport = response.transport;
+					console.log("CONNECTED_Alarm");
+					getState();
+				}   
+				                 
+                request.onMessage = function (response) {
+					var jsonObj = $.parseJSON(response.responseBody);
+					setValue(jsonObj.state);
+				   };
+
+               socket.subscribe(request);
+            }
+	
+	function getState()
+	{
+			var request = $.ajax
+			({
+					type       : "GET",
+					url        : location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/"+items+"/state",
+			});
+
+			request.done( function(data) 
+			{ 
+					setValue(data);
+			});
+
+			request.fail( function(jqXHR, textStatus ) 
+			{ 
+					console.log( "Failure: " + textStatus );
+			});
+	}
+			
+	function setValue(state)
+		{
+			console.log(state);
+			if (state == "WORKING1" || state == "WORKING2") parent.$("#iframe13").css("height", 80+"px");
+			else parent.$("#iframe13").css("height", 0+"px");
+			
+		}
+	window.addEventListener("load", init, false);
+	</script>

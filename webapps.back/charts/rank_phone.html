@@ -1,0 +1,148 @@
+<html>
+<head><meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="rank_phone.css">
+</head>
+ <body id="body">
+   <div id="wrapch">
+  <div class="title"><p class="name">Electricity Balance</p></div>
+  
+  <div id="donutchart" class="chart"></div>
+  <div id="text_l"><p id="con"></p><p id="pro"></p><p id="def"></p></div>
+  </div> 
+  
+<div id="wrapch">
+  <div class="title"><p id="watergas" class="name"></p></div>
+  <div id="text_p"><p class="right" id="gwvalue"></p></div>
+  <div id="donutchart3" class="chart"></div>
+  </div>
+  <div id="wrap">
+  <div class="image"><img src="button_cup.png" width="24" height="24"/></div><div class="rank"><p id="rank">Photovoltaic ranking Tirol: You are <b>No 52. </b>of 368!</p></div>
+</div>
+  </body>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript" src="http://www.datejs.com/build/date.js"></script>
+  <script src="js/jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=');
+        if (p.length != 2) continue;
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+	})(window.location.search.substr(1).split(';'));
+	
+	var max = Number(qs["max"]);
+	var maxw = Number(qs["wmax"]);
+	var maxg = Number(qs["gmax"]);
+	var value = new Array();
+	var url = new Array();
+	var wg = 0;
+	var monthNames = [ "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December" ];
+	
+	function request()
+ 	{
+			url[0] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/"+ qs["prod"] + "/state";
+			url[1] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/"+ qs["cons"] + "/state";
+			url[2] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/"+ qs["c"] + "/state";
+			url[3] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/"+ qs["h"] + "/state";
+		for (var i = 0; i < 4; i++)
+		{
+			var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[i]});
+			request.done( function(data) 
+				{ 
+				  value[i] = Number(data);
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+		}
+	}
+	
+  google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+	    request();
+		var diff;
+		if (value[0] < value[1]) 
+		{
+			diff = (value[1] - value[0]);
+			document.getElementById("def").innerHTML = (value[0] - value[1]).toFixed(2).toString().replace(/\./g, ',') + " kW";
+			document.getElementById("def").style.color = "#E46A55";
+		}
+		else 
+		{
+			diff = 0;
+			document.getElementById("def").innerHTML = "+"+(value[0] - value[1]).toFixed(2).toString().replace(/\./g, ',') + " kW";
+			document.getElementById("def").style.color = "#8BAD01";
+		}
+		
+        var data = google.visualization.arrayToDataTable([
+          ['Name', 'Value', { role: 'style' }, "diff", { role: 'style'}],
+		  ['',   value[1], 'white', (max - value[1]), '#B4B4B4'],
+          ['',     value[0], '#8BAD01', diff, '#E46A55'],
+
+        ]);
+		
+		
+		document.getElementById("pro").innerHTML = value[0].toFixed(2).toString().replace(/\./g, ',') + " kW";
+		document.getElementById("con").innerHTML = value[1].toFixed(1).toString().replace(/\./g, ',') + " kW";
+		
+		if (wg <= 1)
+		{		
+		  var data3 = google.visualization.arrayToDataTable([
+          ['Name', 'Consumption', "fill"],
+          ['',    value[2], maxg - value[2]],
+         ]);
+			document.getElementById("watergas").innerHTML = "Cold Water Consumption";
+			document.getElementById("gwvalue").innerHTML = value[2].toFixed(2).toString().replace(/\./g, ',') + " m³ / h";
+		}
+		else 
+		{
+			var data3 = google.visualization.arrayToDataTable([
+			  ['Name', 'Value', "Fill"],
+			  ['',    value[3], maxg - value[3]],
+			 ]);
+			document.getElementById("watergas").innerHTML = "Hot Water Consumption";
+			document.getElementById("gwvalue").innerHTML = value[3].toFixed(2).toString().replace(/\./g, ',') + " m³ / h";
+		}
+        var options = {
+		   backgroundColor: { fill:'transparent'},
+		   legend: {position: "none"},
+		   tooltip: {trigger: "none"},
+		   bar: {groupWidth: "40%"},
+		   chartArea:{left: "20px",top: 5,width: "98%",height: "90px"},
+		   hAxis: { viewWindowMode:'explicit', viewWindow: {max: max, min: 0 }, gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: 'transparent'}},
+		   isStacked: true,
+        };
+			   
+		var options3 = {
+		   backgroundColor: { fill:'transparent' },
+		   legend: {position: "none"},
+		   chartArea:{left: "20px",top: 5,width: "98%", height: "80px"},
+		   hAxis: {viewWindowMode:'explicit', viewWindow: {max: max, min: 0 }, gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: 'transparent'}},
+		   tooltip: {trigger: "none"},
+		   bar: {groupWidth: "23%"},
+		   colors: ['white', '#B4B4B4'],
+		   isStacked: true,
+		   };
+
+        var chart = new google.visualization.BarChart(document.getElementById('donutchart'));
+		var chart3 = new google.visualization.BarChart(document.getElementById('donutchart3'));
+				
+		chart.draw(data, options);
+		chart3.draw(data3, options3);
+		
+		if (wg == 2) wg = 0;
+		wg++;
+		setTimeout("drawChart()", 1000*30);
+	}
+	window.addEventListener('resize', drawChart);
+    </script>
+
+</html>

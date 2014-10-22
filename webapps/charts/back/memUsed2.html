@@ -1,0 +1,162 @@
+<html>
+  <head>
+	<meta charset="UTF-8">
+	<script src="js/jquery-2.1.0.min.js"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+	
+	var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=');
+        if (p.length != 2) continue;
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+	})(window.location.search.substr(1).split('&'));
+	
+	var item = qs["item"].split(",");
+	var title = qs["t"];
+	var legend = qs["l"].split(",");
+	var axis = qs["a"];
+	var period = qs["p"];
+	var url = new Array();
+	var value = new Array();
+	var time = new Array();
+	
+	function request ()
+ 	{
+		value = [];
+		time = [];
+		for (var y = 0; y < item.length; y++)
+		{
+			url[y] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + item[y] + "&period=";
+
+			var i;
+			var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[y] + period});
+				request.done( function(data) 
+				{ 
+					if (y == 0)
+					{
+						 for (var i = 0; i < data.length; i++) 
+							{
+
+								value.push(Number (data[i].value));
+								time.push(new Date (Number (data[i].time) * 1000));
+							}
+					}
+					if (y == 1)
+					{
+						for (var i = 0; i < data.length; i++) 
+							{
+								value.push(Number (data[i].value));
+							}
+					}
+				});
+		} 
+	}
+	
+	/*function update()
+	{
+		var lvalue;
+		var ltime;
+		var size = value.length / url.length;
+		
+		for (var i = 0; i < url.length; i++)
+		{	
+			var request = $.ajax({type  : "GET", dataType: "xml", async: false, url : url[i] + "last"});
+				request.done( function(data) 
+				{ 
+					$('data', data).each(function(){
+							lvalue = Number($('value', this).text());
+							ltime = new Date (Number ($('time', this).text()) * 1000);							
+							}) 
+									if (i == 0)
+										{
+											time.shift();
+											time.push(ltime);
+										}
+										value.splice(((i+1) * size) ,0, lvalue);	
+										value.splice((i * size) , 1);
+					});
+		}
+	}*/
+	google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawChart); 
+	
+
+	function drawChart() {
+	request();
+	data = new google.visualization.DataTable();
+	data.addColumn ( 'datetime', 'Date');
+	for (var i = 0; i < url.length; i++)
+	  {		 
+		data.addColumn ( 'number', legend[i]);	
+	  }
+  
+		switch (url.length)
+		{
+			case 1:	for (c = 0; c < value.length; c++) 
+					{
+						data.addRow ([time[c], value[c]]);  
+					};
+			break;
+			case 2:	for (c = 0; c < value.length / 2; c++) 
+					{		
+						data.addRow ([time[c], value[c], value[c + value.length / 2]]); 						
+					};
+			break;
+			case 3:	for (c = 0; c < value.length / 3; c++) 
+					{
+						data.addRow ([time[c], value[c], value[c + value.length / 3], value[c + 2 * value.length / 3]]);  
+					};
+			break;
+		}
+		if (period != "M")
+		{
+			var dateFormatter = new google.visualization.DateFormat({pattern: 'HH:mm:ss'});
+			dateFormatter.format(data, 0);
+			var options = {
+			  chartArea: {left: 60, top: 60, width: "95%", height: "85%"},
+			  legend: {position: 'top', alignment: 'end', textStyle: {color: 'grey', fontSize: 16}},
+			  title: title,
+			  titleTextStyle: {fontSize: 25},
+			  hAxis: {format:'HH:mm', gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: '#000000'}},
+			  series: {
+				0: { areaOpacity: 0.5},
+				1: { areaOpacity: 0.4},
+				1: { areaOpacity: 0.3},
+				},
+			  vAxis: {minValue: 0, maxValue: 100, titleTextStyle: {italic: false, color: "grey", fontsize: 16}, title: axis, textStyle: {color: '#000000'}, baselineColor: 'grey',},
+			  colors: ['blue', 'red'],
+			};
+		}
+		else
+		{
+			var options = {
+			  chartArea: {left: 60, top: 7, width: "95%", height: "85%"},
+			  legend: {position: 'top', alignment: 'end'},
+			  title: title,
+			  legend: 'none',
+			  //hAxis: { minValue: 0, maxValue: 60, textStyle: {color: 'white'}, direction: 1, gridlines: {count: 7}, baselineColor: 'lightgrey' },
+			  vAxis: {minValue: 0, maxValue: 100, axisTitlesPosition: 'none', gridlines: {count: 11}, minorGridlines: {count: 1}},
+			  colors: ['blue'],
+			};
+		}
+        var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+        chart.draw (data, options);
+		delete data;
+		if (period == "5m") setTimeout("drawChart()", 1000);	
+		if (period == "h") setTimeout("drawChart()", 1000 * 10);
+		if (period == "D") setTimeout("drawChart()", 1000 * 60 * 30);
+		if (period == "M") setTimeout("drawChart()", 1000 * 60 * 60 * 2);
+      }		
+	window.addEventListener('resize', drawChart);	  
+    </script>
+  </head>
+  <body>
+    <div id="chart_div" style="width: 100%; height: 100%;"></div>
+  </body>
+</html>

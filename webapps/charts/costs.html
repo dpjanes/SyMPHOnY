@@ -1,0 +1,393 @@
+<html>
+  <head>
+   	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="costs.css">
+        <title>COST</title>
+  </head>
+  <body>
+  <div id="wrapch">
+	<span class="title">Cost & Earnings</span><span class="subtitle"> / by month</span>
+	<span id="prod">EARNINGS</span><span class="image"><img src="./prod.png" width="15" height="15"></span><span id="cost">COSTS</span><span class="image"><img src="./cons.png" width="15" height="15"></span>
+    <div id="chart_div"></div>
+</div>
+
+<div id="wraptable">
+	<span class="title">Cost & Earnings</span><span class="subtitle" id="monthleg"></span>
+	<div id="table_div">
+	<table class="table">
+	<tr id="legend"><td colspan="3" id="legmonth"></td></tr>
+	<tr class="line"><td class="name">Cold Water</td><td id="coldwat"></td><td id="coldwatcost"></td></tr>
+	<tr class="line"><td class="name">Hot Water</td><td id="hotwat"></td><td id="hotwatcost"></td></tr>
+	<tr class="line"><td class="name">Electricity T1</td><td id="eleT1"></td><td id="eleT1cost"></td></tr>
+	<tr class="line"><td class="name">Electricity T2</td><td id="eleT2"></td><td id="eleT2cost"></td></tr>
+	<tr id="photovolt"><td class="name">Photovoltaics</td><td id="phot"></td><td id="photcost"></td></tr>
+	<tr id="total"><td class="name" colspan="2">Total Cost</td><td id="totprice"></td></tr>
+	</table>
+	</div>
+</div>
+	<div id="div_buttons">
+	<button type="button" class="period" onClick="setperiod('1');" id="1month">1</button>
+	<button type="button" class="period" onClick="setperiod('2');" id="2month">2</button>
+	<button type="button" class="period" onClick="setperiod('3');" id="3month">3</button>
+	<button type="button" class="period" onClick="setperiod('Y');">Last 12 month</button>
+	</div>
+  </body>
+  <script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+	
+    var qs = (function(a) {
+    if (a == "") return {};
+    var b = {};
+    for (var i = 0; i < a.length; ++i)
+    {
+        var p=a[i].split('=');
+        if (p.length != 2) continue;
+        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+    }
+    return b;
+	})(window.location.search.substr(1).split(';'));
+	
+	var coldw = qs["cold"];
+	var hotw = qs ["hot"];
+	var photo = qs ["photo"];
+	var elec = qs ["ele"];
+	var axis = "";
+	var period = "1";
+	var url = new Array();
+	var time = new Array();
+	var cold = new Array();
+	var hot = new Array();
+	var photovolt = new Array();
+	var costs = new Array();
+	var price = new Array();
+	var prod = new Array();
+	var cons = new Array();
+
+	
+	/*var item_cold = "MemUsedPercent";	//Name of item Cold Water
+	var item_hot = "MemUsedPercent";	//Name of item Hot Water
+	var photo = "MemUsedPercent";	//Name of item Photovoltaics
+	var elec = "MemUsedPercent";	//Name of item Electricity*/
+	
+	var eleT1 = new Array();
+	var eleT2 = new Array();
+	var consT1now = 0;
+	var consT2now = 0;
+	
+	url[0] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "pricecoldwat" + "/state";	//Cold Water price
+	url[1] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "pricehotwat" + "/state";	//Hot Water price
+	url[2] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "pricephoto" + "/state";		//Photovoltaics price
+	url[3] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "priceelet1" + "/state";		//Tarif1 price
+	url[4] = location.protocol + "//" + location.hostname + ":" + location.port + "/rest/items/" + "priceelet2" + "/state";		//Tarif2 price
+	for (var p = 0; p < url.length; p++)
+	{
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[p]});
+			request.done( function(data) 
+				{ 
+				  price[p] = Number(data);
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+	}
+	
+	
+	function costrequest()
+ 	{
+		var y = 0;
+		var s = 0; 
+		consT1now = 0;
+		consT2now = 0;
+		var now = 0;
+		eleT1 = [];
+		eleT2 = [];
+		cold = [];
+		time = [];
+		hot = [];
+		photovolt = [];
+		var startT1 = "";
+		var starT2 = "";
+		temp1 = new Array();
+		temp2 = new Array();
+		url = [];
+		costs = [];
+		TarTime = new Date();
+		
+		var next = 0;
+		
+		if (period == '1') {per = 'M'; stepc = 1440; start = new Date(TarTime.getFullYear(), TarTime.getMonth(), 1);  stop = TarTime;}
+		if (period == '2') {per ='Y'; stepc = 24; start = new Date(TarTime.getFullYear(), TarTime.getMonth()-1, 1); stop = new Date(TarTime.getFullYear(), TarTime.getMonth(), 0);}
+		if (period == '3') {per ='Y'; stepc = 24; start = new Date(TarTime.getFullYear(), TarTime.getMonth()-2, 1); stop = new Date(TarTime.getFullYear(), TarTime.getMonth()-1, 0);}
+		if (period == 'Y') {per = 'Y'; stepc = 24; start = new Date(TarTime.getFullYear(), TarTime.getMonth()-11, 1); stop = TarTime;}
+		
+		startT = start.getFullYear()+","+(start.getMonth()+1)+","+start.getDate();
+		stopT = stop.getFullYear()+","+(stop.getMonth()+1)+","+stop.getDate();
+		
+		
+		url[0] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + coldw +"&period=" + per +"&start=" + startT +"&stop=" + stopT + "&func=last&step=" + stepc;
+		url[1] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + hotw +"&period=" + per +"&start=" + startT +"&stop=" + stopT + "&func=last&step=" + stepc;
+		url[2] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + photo +"&period=" + per +"&start=" + startT +"&stop=" + stopT + "&func=last&step=" + stepc;
+		url[3] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + elec +"&start=" + startT +","+"06,00" +"&stop=" + stopT +","+"06,00" + "&period=" + per + "&func=last&step=" + stepc;
+		url[4] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + elec +"&start=" + startT +","+"22,00" +"&stop=" + stopT +","+"22,00" + "&period=" + per + "&func=last&step=" + stepc;
+		url[5] = location.protocol + "//" + location.hostname + ":" + location.port + "/data.json?item=" + elec + "&period=last";
+		
+		
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[0]});
+			request.done( function(data) 
+				{ 
+					for (var i = s; i < data.length; i++) 
+					{
+						cold.push(Number (data[i].value));
+						time.push(new Date (Number (data[i].time) * 1000));
+					}
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+				
+			/*------------------------------------------------------------------------------------------------------------------------------------------------*/
+			var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[1]});
+			request.done( function(data) 
+				{ 
+					for (var i = s; i < data.length; i++) 
+						{
+							hot.push(Number (data[i].value));
+						}
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+			
+			
+		/*------------------------------------------------------------------------------------------------------------------------------------------------*/		
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[2]});
+			request.done( function(data) 
+				{ 
+					for (var i = s; i < data.length; i++) 
+						{
+							photovolt.push(Number (data[i].value));
+						}
+				});
+			request.fail( function()
+			{
+				console.log("Error");
+			});
+		
+		/*-----------------------------------------------------------------------------------------------------*/
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[3]});
+			request.done( function(data) 
+					{ 
+					 for (var i = 0; i < data.length; i++) 
+						{
+								temp1.push(Number (data[i].value)).toFixed(2);
+								
+						}
+					});
+				request.fail( function()
+				{					
+					console.log("Error");
+				});	
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[4]});
+			request.done( function(data) 
+				{ 
+					for (var i = 0; i < data.length; i++) 
+					{
+							temp2.push(Number (data[i].value)).toFixed(2);
+					}
+				});
+				request.fail( function()
+				{
+					console.log("Error");
+				});
+				
+		var request = $.ajax({type  : "GET", dataType: "json", async: false, url : url[5]});
+				request.done( function(data) 
+					{ 
+					 now = Number (data[0].value).toFixed(2);
+					});
+				request.fail( function()
+				{
+					console.log("Error");
+				});
+				
+		for (i = 0; i < temp1.length - 1; i++)
+			{
+				eleT1[i] = (temp2[i] - temp1[i]) || 0;
+				eleT2[i] = (temp1[i+1] - temp2[i]) || 0;
+			}
+		if (period == "Y" || period == "1")
+		{
+			if (TarTime.getHours() >= 6 && TarTime.getHours() <= 22) 
+			{
+				eleT1[i] =  (now - temp1[i]) || 0;
+			}
+			else 
+			{
+				eleT1[i] =  (temp2[i] - temp1[i]) || 0;
+				eleT2[i] =  (now - temp2[i]) || 0;
+			}
+		}
+	
+			for (i = 0; i < eleT1.length; i++)
+				{
+					consT1now += eleT1[i];
+					if (!(TarTime.getHours() >= 6 && TarTime.getHours() <= 22 && i == eleT1.length - 1)) consT2now += eleT2[i];
+				}
+
+	}
+	
+	google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawChart); 
+	
+
+	function drawChart() {
+	costrequest();
+	var form = "";
+	TarTime = new Date();
+	prod = [];
+	cons = [];
+	
+	if (period == "Y")
+	{
+		Time = new Date();
+
+		var days = new Array();
+		for (i = 0; i < 11; i++)
+		{
+			start = new Date(Time.getFullYear(), Time.getMonth()-(10-i), 0);
+			days[i] = start.getDate();
+		}
+		days[i] = Time.getDate();
+	
+		sum = 0;
+		backTime = new Array();
+		for (i = 0; i < 12; i++)
+		{
+			sum = sum + days[i];
+
+			prod[i] =  photovolt[sum];
+			cons[i] =  hot[sum] + cold[sum]; 
+			backTime[i] = time[sum];
+			
+		}
+		time = [];
+		time = backTime.slice(0);
+	}
+	else
+	{
+		for (c = 0; c < cold.length; c++)
+			{
+				prod[c] = photovolt[c];
+				cons[c] = cold[[c]] + hot[[c]];
+				
+			}
+	}
+	data = new google.visualization.DataTable();
+
+		data.addColumn ( 'datetime', 'Date');
+		data.addColumn ( 'number', 'COST');	
+		data.addColumn({type: 'string', role: 'annotation'});
+		data.addColumn ( 'number', 'EARNINGS');
+		data.addColumn({type: 'string', role: 'annotation'});
+		
+		
+		var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+		if (period == "1") {document.getElementById("legmonth").innerHTML = monthNames[TarTime.getMonth()] + " " + TarTime.getFullYear(); document.getElementById("monthleg").innerHTML = " / " + monthNames[TarTime.getMonth()]};
+		if (period == "2") { TarTime.setMonth(TarTime.getMonth()-1); document.getElementById("legmonth").innerHTML = monthNames[TarTime.getMonth()] + " " + TarTime.getFullYear(); document.getElementById("monthleg").innerHTML = " / " + monthNames[TarTime.getMonth()];};
+		if (period == "3") {TarTime.setMonth(TarTime.getMonth()-2); document.getElementById("legmonth").innerHTML = monthNames[TarTime.getMonth()] + " " + TarTime.getFullYear(); document.getElementById("monthleg").innerHTML = " / " + monthNames[TarTime.getMonth()];};
+		if (period == "Y") {stp = monthNames[TarTime.getMonth()] + " " +  TarTime.getFullYear(); TarTime.setMonth(TarTime.getMonth()-11);
+							document.getElementById("legmonth").innerHTML = monthNames[TarTime.getMonth()] + " " + TarTime.getFullYear() + " - " + stp;document.getElementById("monthleg").innerHTML = " / 12 months";};
+
+	
+		for (c = 0; c < prod.length; c++) 
+				{
+						legc = "";
+						legh = "";
+						if (isNaN(prod[c])) legc = "N";
+						else legc = "";
+						if (isNaN(cons[c])) legh = "N";
+						else legh = "";
+					data.addRow ([time[c], cons[c], legh, prod[c], legc]);  
+				};
+			if (period != 'Y') {pat = 'dd. MM.'; form = 'dd. MM.';}
+			else {pat = 'MM/yy'; form = 'MM/yy';};
+			
+			var formatter = new google.visualization.NumberFormat({fractionDigits: 3});
+			formatter.format(data, 1);
+			formatter.format(data, 3);
+			var dateFormatter = new google.visualization.DateFormat({pattern: pat});
+			dateFormatter.format(data, 0);
+					
+		var clientHeight = document.getElementById('chart_div').clientHeight - 70;
+		var options = {
+			chartArea: {left: 60, top: 40, width: "95%", height: clientHeight},
+			legend: {position: 'none', alignment: 'end', textStyle: {fontSize: 16, fontName: "Titillium-regular"}},
+			backgroundColor: { fill:'transparent'},
+			vAxis: {minValue: 0, titleTextStyle: {italic: false}, baselineColor: '#D7D7D7', gridlines: {color: '#D7D7D7'}, textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+			hAxis: {format: form, gridlines: {color: 'transparent'}, baselineColor: 'transparent', textStyle: {color: '#565656', fontSize: 16, fontName: "Titillium-regular"}},
+			colors: ['#F65713', "#80A500"],
+			}
+		
+		
+		
+		document.getElementById("coldwat").innerHTML = ((cold[cold.length-1] - cold[0]) || 0).format(1, 3, '.', ',').toString() + " L";
+		document.getElementById("hotwat").innerHTML = ((hot[hot.length-1] - hot[0]) || 0).format(1, 3, '.', ',').toString() + " L";
+		document.getElementById("phot").innerHTML =  ((photovolt[photovolt.length-1] - photovolt[0]) || 0).format(1, 3, '.', ',').toString() + " kWh";
+		document.getElementById("eleT1").innerHTML = (consT1now).format(2, 3, '.', ',').toString() + " kWh";
+		document.getElementById("eleT2").innerHTML = (consT2now).format(2, 3, '.', ',').toString() + " kWh";
+
+		
+		document.getElementById("coldwatcost").innerHTML = (price[0] /* (costs[1]-costs[0])*/).format(2, 3, '.', ',').toString() + " €";
+		document.getElementById("hotwatcost").innerHTML = (price[1] /* (costs[3]-costs[2])*/).format(2, 3, '.', ',').toString() + " €";
+		document.getElementById("photcost").innerHTML = (price[2] /* (costs[5]-costs[4])*/).format(2, 3, '.', ',').toString() + " €";
+		document.getElementById("eleT1cost").innerHTML = (price[3] * consT1now).format(2, 3, '.', ',').toString() + " €";
+		document.getElementById("eleT2cost").innerHTML = (price[4] * consT2now).format(2, 3, '.', ',').toString() + " €";
+		var total = price[0]/* (costs[1]-costs[0])*/ + price[1]/* (costs[3]-costs[2])*/ + price[2]/* (costs[5]-costs[4])*/+ price[3]* consT1now + price[4] * consT2now;
+		document.getElementById("totprice").innerHTML = total.format(2, 3, '.', ',').toString() + " €";
+		
+
+
+		var chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+        chart.draw (data, options);
+		
+		setTimeout("drawChart()", 1000 * 60 * 60);
+	
+    }	
+	
+	Number.prototype.format = function(n, x, s, c) {
+    var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
+        num = this.toFixed(Math.max(0, ~~n));
+    
+    return (c ? num.replace('.', c) : num).replace(new RegExp(re, 'g'), '$&' + (s || ','));
+	};
+	
+	function setperiod(p)
+	{
+		period = p;
+		drawChart();
+	}
+	$(document).ready(function() {
+	var monthNames = [ "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December" ];
+	var month = new Date();
+	document.getElementById("1month").innerHTML = monthNames[month.getMonth()];
+	month.setMonth(month.getMonth()-1);
+	document.getElementById("2month").innerHTML = monthNames[month.getMonth()];
+	month.setMonth(month.getMonth()-1);
+	document.getElementById("3month").innerHTML = monthNames[month.getMonth()];
+    myInit();
+	$("#1month").addClass('period-highlight');
+	});
+	function myInit() {
+		  $('button').click(function(){
+			$('button').removeClass('period-highlight')
+			$(this).addClass('period-highlight');
+		  });
+		};
+	window.addEventListener('resize', drawChart);	  
+    </script>
+</html>
